@@ -11,7 +11,7 @@ def index():
 
 def product(product_id):
     product = Product.query.filter_by(id=product_id).first() or abort(
-        404, "produto nao encontrado"
+        404, "Brak produktu"
     )
     return render_template("product.html", product=product)
 
@@ -23,4 +23,4 @@ def secret():
 
 @login_required(username="admin")
 def only_admin():
-    return "only admin user can see this text"
+    return "Only admin user can see this text"

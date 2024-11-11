@@ -32,11 +32,11 @@ def read_requirements(path):
 setup(
     name="miasi",
     version=read("miasi", "VERSION"),
-    description="Awesome miasi created by mcV3rs",
+    description="Projekt stworzony na potrzeby przedmiotu Modelowanie i Analiza Systemów Informatycznych",
     url="https://github.com/mcV3rs/MiASI/",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
-    author="mcV3rs",
+    author="Jakub Gurgul, Adam Paxdzierz",
     packages=find_packages(exclude=["tests", ".github"]),
     install_requires=read_requirements("requirements.txt"),
     entry_points={
