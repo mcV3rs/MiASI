@@ -17,12 +17,15 @@
 
 <div class="jumbotron">
 <ul class="list-group">
-    {% for product in products %}
+
+    {% for system in systems %}
     <li class="list-group-item">
-        <a href="{{url_for('webui.productview', product_id=product.id)}}">{{product.name}}- {{ "%0.2f" | format(product.price)}}</a>
+        <a href="{{url_for('webui.systemview', system_id=system.id)}}">{{system.name_human_readable}}</a>
     </li>
     {% endfor %}
+
 </ul>
+
 </div>
 
 </div>

@@ -1,0 +1,63 @@
+{% extends "index.html" %}
+
+{% block content %}
+    <div class="container">
+        <h1>{{ system.name_human_readable }}</h1>
+        <p>{{ system.description }}</p>
+
+        <div class="jumbotron">
+            <h2>{{ system.name_human_readable }}</h2>
+            <form id="systemForm" method="post">
+                {% for form in forms %}
+                    <div class="form-group">
+                        <label for="{{ form.name }}">{{ form.name_human_readable }}</label>
+                        {% if form.input_type == 'text' %}
+                            <input type="text" class="form-control" id="{{ form.name }}" name="{{ form.name }}"
+                                   placeholder="{{ form.description }}">
+                        {% elif form.input_type == 'number' %}
+                            <input type="number" class="form-control" id="{{ form.name }}" name="{{ form.name }}"
+                                   placeholder="{{ form.description }}" step="any">
+                        {% elif form.input_type == 'email' %}
+                            <input type="email" class="form-control" id="{{ form.name }}" name="{{ form.name }}"
+                                   placeholder="{{ form.description }}">
+                        {% elif form.input_type == 'date' %}
+                            <input type="date" class="form-control" id="{{ form.name }}" name="{{ form.name }}">
+                        {% elif form.input_type == 'textarea' %}
+                            <textarea class="form-control" id="{{ form.name }}" name="{{ form.name }}"
+                                      placeholder="{{ form.description }}"></textarea>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-primary">Prześlij</button>
+            </form>
+            <div id="responseMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('systemForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const form = event.target;
+            const formData = new FormData(form);
+            const jsonData = JSON.stringify(Object.fromEntries(formData.entries()));
+
+            fetch(`/api/v1/system/{{ system.id }}/form/submit`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: jsonData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('responseMessage').innerText = data.message + ' - ' + data.result + ' - ' + data.advice;
+                    console.log(data);
+                })
+                .catch(error => {
+                    document.getElementById('responseMessage').innerText = 'An error occurred: ' + error.message;
+                });
+        });
+    </script>
+
+{% endblock %}

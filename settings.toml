@@ -1,5 +1,5 @@
 [default]
-DEBUG = false
+FLASK_DEBUG  = false
 FLASK_ADMIN_TEMPLATE_MODE = "bootstrap3"
 FLASK_ADMIN_SWATCH = 'cerulean'
 SQLALCHEMY_DATABASE_URI = 'sqlite:///development.db'
@@ -21,8 +21,9 @@ EXTENSIONS = [
     "flask_debugtoolbar:DebugToolbarExtension",
     "dynaconf_merge_unique"  # to reuse extensions list from [default]
 ]
+SQLALCHEMY_RECORD_QUERIES = true
 TEMPLATES_AUTO_RELOAD = true
-DEBUG = true
+FLASK_DEBUG  = true
 DEBUG_TOOLBAR_ENABLED = true
 DEBUG_TB_INTERCEPT_REDIRECTS = false
 DEBUG_TB_PROFILER_ENABLED = true
