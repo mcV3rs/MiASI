@@ -1,6 +1,6 @@
 [default]
 FLASK_DEBUG  = false
-FLASK_ADMIN_TEMPLATE_MODE = "bootstrap3"
+FLASK_ADMIN_TEMPLATE_MODE = "bootstrap4"
 FLASK_ADMIN_SWATCH = 'cerulean'
 SQLALCHEMY_DATABASE_URI = 'sqlite:///development.db'
 TITLE = "miasi"
