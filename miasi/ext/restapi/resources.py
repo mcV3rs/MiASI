@@ -17,8 +17,6 @@ class FormsSubmissionResource(Resource):
         if not equations:
             return {"message": "No equations found for this system"}, 404
 
-        results = {}
-        advice_list = []
         for equation in equations:
             # Fetch the fields for the equation
             fields = EquationFields.query.filter_by(id_equation=equation.id).all()
@@ -49,7 +47,7 @@ class FormsSubmissionResource(Resource):
                 return {"message": f"Error calculating equation {equation.name_human_readable}: {str(e)}"}, 500
 
             # Fetch the relevant knowledge entries for the equation
-            knowledge_entries = Knowledge.query.filter_by(id_equation=equation.id).all()
+            knowledge_entries = Knowledge.query.filter_by(id_system=system.id).all()
             for entry in knowledge_entries:
                 try:
                     if eval(entry.condition, {}, {"value": result}):
@@ -59,32 +57,3 @@ class FormsSubmissionResource(Resource):
                         "message": f"Error evaluating knowledge condition for {equation.name_human_readable}: {str(e)}"}, 500
 
         return {"message": "Form submitted successfully", "result": result, "advice": advice}, 201
-
-"""TODO: PRAWDOPODOBNIE DO USUNIĘCIA, użyte z szablonu jako przykład"""
-# class ProductResource(Resource):
-#     def get(self):
-#         products = Product.query.all() or abort(204)
-#         return jsonify(
-#             {"products": [product.to_dict() for product in products]}
-#         )
-#
-#     def post(self):
-#         """
-#         Creates a new product.
-#
-#         Only admin user authenticated using basic auth can post
-#         Basic takes base64 encripted username:password.
-#
-#         # curl -XPOST localhost:5000/api/v1/product/ \
-#         #  -H "Authorization: Basic Y2h1Y2s6bm9ycmlz" \
-#         #  -H "Content-Type: application/json"
-#         """
-#         return NotImplementedError(
-#             "Someone please complete this example and send a PR :)"
-#         )
-#
-#
-# class ProductItemResource(Resource):
-#     def get(self, product_id):
-#         product = Product.query.filter_by(id=product_id).first() or abort(404)
-#         return jsonify(product.to_dict())

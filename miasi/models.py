@@ -38,7 +38,6 @@ class Equation(db.Model, SerializerMixin):
     name = db.Column(db.String(140))  # Nazwa równania, używana w kodzie
     name_human_readable = db.Column(db.String(512))  # Nazwa równania, używana w interfejsie użytkownika
     formula = db.Column(db.Text)  # Wyrażenie matematyczne jako string (np. "weight / (height ** 2)")
-    description = db.Column(db.Text)  # Opis równania
 
     system = db.relationship('System', backref='equations')  # Powiązanie z tabelą System
 
@@ -49,7 +48,6 @@ class EquationFields(db.Model, SerializerMixin):
     id_form = db.Column(db.Integer, db.ForeignKey('form.id'), nullable=False)  # KLUCZ OBCY DO POLA FORMULARZA
 
     variable_name = db.Column(db.String(50))  # Nazwa zmiennej w równaniu (np. "weight", "height")
-    description = db.Column(db.String(512))  # Opcjonalny opis pola (np. "waga w kilogramach")
 
     equation = db.relationship('Equation', backref='fields')  # Relacja z równaniem
     form_field = db.relationship('Form', backref='equation_mappings')  # Relacja z polem formularza
@@ -57,17 +55,8 @@ class EquationFields(db.Model, SerializerMixin):
 class Knowledge(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)  # KLUCZ GŁÓWNY
     id_system = db.Column(db.Integer, db.ForeignKey('system.id'), nullable=False)  # KLUCZ OBCY DO SYSTEMU
-    id_equation = db.Column(db.Integer, db.ForeignKey('equation.id'), nullable=False)  # KLUCZ OBCY DO RÓWNANIA
 
     condition = db.Column(db.String(512))  # Wyrażenie logiczne jako string (np. "value < 18.5")
     advice = db.Column(db.Text)  # Rada, którą system udzieli, jeśli warunek jest spełniony
 
     system = db.relationship('System', backref='knowledge')  # Relacja z tabelą System
-    equation = db.relationship('Equation', backref='knowledge_rules')  # Relacja z tabelą Equation
-
-"""PRAWDOPODOBNIE DO USUNIĘCIA"""
-class Product(db.Model, SerializerMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(140))
-    price = db.Column(db.Numeric())
-    description = db.Column(db.Text)

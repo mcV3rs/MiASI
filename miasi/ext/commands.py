@@ -2,7 +2,7 @@ import click
 
 from miasi.ext.auth import create_user
 from miasi.ext.database import db
-from miasi.models import Product, System, Form, Equation, EquationFields, Knowledge
+from miasi.models import System, Form, Equation, EquationFields, Knowledge
 
 
 def create_db():
@@ -17,14 +17,8 @@ def drop_db():
 
 def populate_db():
     """Populate db with sample data"""
-    # Sample data for Product table
-    products = [
-        Product(id=1, name="Ciabatta", price="10", description="Italian Bread"),
-        Product(id=2, name="Baguete", price="15", description="French Bread"),
-        Product(id=3, name="Pretzel", price="20", description="German Bread"),
-    ]
 
-    # Sample data for System table
+    # Sample data for TestModel table
     systems = [
         System(id=1, name="BMI_Calculator", name_human_readable="Kalkulator BMI",
                description="System, który umożliwi Ci sprawdzenie swojego BMI"),
@@ -40,30 +34,28 @@ def populate_db():
 
     # Sample data for Equation table
     equations = [
-        Equation(id=1, id_system=1, name="BMI", name_human_readable="Body Mass Index", formula="weight / (height ** 2)",
-                 description="Obliczanie BMI")
+        Equation(id=1, id_system=1, name="BMI", name_human_readable="Body Mass Index", formula="weight / (height ** 2)")
     ]
 
     # Sample data for EquationFields table
     equation_fields = [
-        EquationFields(id=1, id_equation=1, id_form=1, variable_name="height", description="Wzrost w metrach"),
-        EquationFields(id=2, id_equation=1, id_form=2, variable_name="weight", description="Waga w kilogramach")
+        EquationFields(id=1, id_equation=1, id_form=1, variable_name="height"),
+        EquationFields(id=2, id_equation=1, id_form=2, variable_name="weight")
     ]
 
     # Sample data for Knowledge table
     knowledge = [
-        Knowledge(id=1, id_system=1, id_equation=1, condition="value < 18.5",
+        Knowledge(id=1, id_system=1, condition="value < 18.5",
                   advice="Twoja waga jest zbyt niska. Rozważ konsultację z dietetykiem."),
-        Knowledge(id=2, id_system=1, id_equation=1, condition="value >= 18.5 and value < 25",
+        Knowledge(id=2, id_system=1, condition="value >= 18.5 and value < 25",
                   advice="Twoja waga jest w normie. Utrzymuj zdrowy styl życia!"),
-        Knowledge(id=3, id_system=1, id_equation=1, condition="value >= 25 and value < 30",
+        Knowledge(id=3, id_system=1, condition="value >= 25 and value < 30",
                   advice="Masz nadwagę. Rozważ zwiększenie aktywności fizycznej i konsultację z dietetykiem."),
-        Knowledge(id=4, id_system=1, id_equation=1, condition="value >= 30",
+        Knowledge(id=4, id_system=1, condition="value >= 30",
                   advice="Masz otyłość. Skonsultuj się z lekarzem i dietetykiem."),
     ]
 
     # Add all sample data to the session
-    db.session.bulk_save_objects(products)
     db.session.bulk_save_objects(systems)
     db.session.bulk_save_objects(forms)
     db.session.bulk_save_objects(equations)
@@ -74,7 +66,6 @@ def populate_db():
     db.session.commit()
 
     return {
-        "products": Product.query.all(),
         "systems": System.query.all(),
         "forms": Form.query.all(),
         "equations": Equation.query.all(),

@@ -1,8 +1,7 @@
 from flask import abort, render_template
 from flask_simplelogin import login_required
 
-from miasi.ext.database import db
-from miasi.models import System, Product
+from miasi.models import System
 
 
 def index():
@@ -17,18 +16,10 @@ def system(system_id):
     # Pobranie z bazy danych formularzy przypisanych do systemu
     forms = system.forms
 
-    print(f"System: {system.name}")
+    print(f"TestModel: {system.name}")
     print(f"Forms: {[form.name_human_readable for form in forms]}")
 
     return render_template("system.html", system=system, forms=forms)
-
-
-
-def product(product_id):
-    product = Product.query.filter_by(id=product_id).first() or abort(
-        404, "Brak produktu"
-    )
-    return render_template("product.html", product=product)
 
 
 @login_required
