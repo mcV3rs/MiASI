@@ -2,7 +2,7 @@ import click
 
 from miasi.ext.auth import create_user
 from miasi.ext.database import db
-from miasi.models import Product, Systems, Forms, Equations, EquationFields
+from miasi.models import Product, Systems, Forms, Equations, EquationFields, Knowledge
 
 
 def create_db():
@@ -46,12 +46,21 @@ def populate_db():
         EquationFields(id=2, id_equations=1, id_forms=2, variable_name="weight", description="Waga w kilogramach")
     ]
 
+    # Sample data for Knowledge table
+    knowledge = [
+        Knowledge(id=1, id_systems=1, id_equations=1, condition="value < 18.5", advice="Twoja waga jest zbyt niska. Rozważ konsultację z dietetykiem."),
+        Knowledge(id=2, id_systems=1, id_equations=1, condition="value >= 18.5 and value < 25", advice="Twoja waga jest w normie. Utrzymuj zdrowy styl życia!"),
+        Knowledge(id=3, id_systems=1, id_equations=1, condition="value >= 25 and value < 30", advice="Masz nadwagę. Rozważ zwiększenie aktywności fizycznej i konsultację z dietetykiem."),
+        Knowledge(id=4, id_systems=1, id_equations=1, condition="value >= 30", advice="Masz otyłość. Skonsultuj się z lekarzem i dietetykiem."),
+    ]
+
     # Add all sample data to the session
     db.session.bulk_save_objects(products)
     db.session.bulk_save_objects(systems)
     db.session.bulk_save_objects(forms)
     db.session.bulk_save_objects(equations)
     db.session.bulk_save_objects(equation_fields)
+    db.session.bulk_save_objects(knowledge)
 
     # Commit the session
     db.session.commit()
@@ -61,7 +70,8 @@ def populate_db():
         "systems": Systems.query.all(),
         "forms": Forms.query.all(),
         "equations": Equations.query.all(),
-        "equation_fields": EquationFields.query.all()
+        "equation_fields": EquationFields.query.all(),
+        "knowledge": Knowledge.query.all()
     }
 
 
