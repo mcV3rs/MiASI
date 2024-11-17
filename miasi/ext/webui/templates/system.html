@@ -17,14 +17,12 @@
                         {% elif form.input_type == 'number' %}
                             <input type="number" class="form-control" id="{{ form.name }}" name="{{ form.name }}"
                                    placeholder="{{ form.description }}" step="any">
-                        {% elif form.input_type == 'email' %}
-                            <input type="email" class="form-control" id="{{ form.name }}" name="{{ form.name }}"
-                                   placeholder="{{ form.description }}">
-                        {% elif form.input_type == 'date' %}
-                            <input type="date" class="form-control" id="{{ form.name }}" name="{{ form.name }}">
-                        {% elif form.input_type == 'textarea' %}
-                            <textarea class="form-control" id="{{ form.name }}" name="{{ form.name }}"
-                                      placeholder="{{ form.description }}"></textarea>
+                        {% elif form.input_type == 'sex' %}
+                            <select class="form-control" id="{{ form.name }}" name="{{ form.name }}">
+                                <option value="" disabled selected>{{ form.description }}</option>
+                                <option value="1">Mężczyzna</option>
+                                <option value="0">Kobieta</option>
+                            </select>
                         {% endif %}
                     </div>
                 {% endfor %}

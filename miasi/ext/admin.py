@@ -4,6 +4,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.base import AdminIndexView
 from flask_admin.form import Select2Widget
 from flask_simplelogin import login_required
+from wtforms.fields.choices import SelectField
 from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 
 from miasi.ext.database import db
@@ -23,9 +24,16 @@ class ProtectedModelView(ModelView):
 
 # Specjalne widoki
 class FormAdmin(ModelView):
-    """Panel administracyjny dla tabeli Form."""
-    column_list = ("name", "name_human_readable", "input_type", "description")
+    """Admin panel for the Form table."""
+    column_list = ("name", "name_human_readable", "description")
     form_columns = ("name", "name_human_readable", "input_type", "description", "order", "validation_rule")
+
+    form_extra_fields = {
+        "input_type": SelectField(
+            "Input Type",
+            choices=[("text", "Text"), ("number", "Number"), ("sex", "Sex")]
+        )
+    }
 
 
 class SystemAdmin(ModelView):
