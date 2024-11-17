@@ -14,7 +14,7 @@ def system(system_id):
     system = System.query.filter_by(id=system_id).first() or abort(404, "Brak systemu")
 
     # Pobranie z bazy danych formularzy przypisanych do systemu
-    forms = system.forms
+    forms = [sf.form for sf in system.system_forms]
 
     print(f"TestModel: {system.name}")
     print(f"Forms: {[form.name_human_readable for form in forms]}")

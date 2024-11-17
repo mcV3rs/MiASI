@@ -42,6 +42,8 @@ class FormsSubmissionResource(Resource):
 
             # Calculate the value using the equation formula
             try:
+                print("Equation formula:", equation.formula)
+                print("Variables:", variables)
                 result = eval(equation.formula, {}, variables)
             except Exception as e:
                 return {"message": f"Error calculating equation {equation.name_human_readable}: {str(e)}"}, 500

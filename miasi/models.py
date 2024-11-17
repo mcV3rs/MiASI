@@ -5,30 +5,50 @@ from miasi.ext.database import db
 
 class User(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
+
     username = db.Column(db.String(140))
     password = db.Column(db.String(512))
 
 class System(db.Model, SerializerMixin):
-    id = db.Column(db.Integer, primary_key=True) # KLUCZ GŁÓWNY
+    id = db.Column(db.Integer, primary_key=True)  # Primary Key
 
-    name = db.Column(db.String(140)) # Nazwa systemu, używana w kodzie
-    name_human_readable = db.Column(db.String(512)) # Nazwa systemu, używana w interfejsie użytkownika
-    description = db.Column(db.Text) # Opis systemu
+    name = db.Column(db.String(140))  # System name used in code
+    name_human_readable = db.Column(db.String(512))  # System name used in the user interface
+    description = db.Column(db.Text)  # System description
 
-    forms = db.relationship('Form', back_populates='system', lazy=True) # Relacja jeden do wielu z tabelą Form
+    system_forms = db.relationship('SystemForm', back_populates='system', cascade='all, delete-orphan')  # Many-to-many relationship
 
 class Form(db.Model, SerializerMixin):
-    id = db.Column(db.Integer, primary_key=True) # KLUCZ GŁÓWNY
-    id_system = db.Column(db.Integer, db.ForeignKey('system.id'), nullable=False) # KLUCZ OBCY DO SYSTEMU
+    id = db.Column(db.Integer, primary_key=True)  # Primary Key
 
-    name = db.Column(db.String(140)) # Nazwa formularza, używana w kodzie
-    name_human_readable = db.Column(db.String(512)) # Nazwa formularza, używana w interfejsie użytkownika
-    input_type = db.Column(db.String(50))  # Typ pola formularza
-    description = db.Column(db.Text) # Opis formularza
-    order = db.Column(db.Integer, nullable=True)  # Kolejność wyświetlania pola
-    validation_rule = db.Column(db.String(512), nullable=True)  # Reguła walidacji np. regex
+    name = db.Column(db.String(140))  # Form name used in code
+    name_human_readable = db.Column(db.String(512))  # Form name used in the user interface
+    input_type = db.Column(db.String(50))  # Form field type
+    description = db.Column(db.Text)  # Form description
+    order = db.Column(db.Integer, nullable=True)  # Display order of the field
+    validation_rule = db.Column(db.String(512), nullable=True)  # Validation rule, e.g., regex
 
-    system = db.relationship('System', back_populates='forms') # Relacja z tabelą System (jeden do wielu)
+    system_forms = db.relationship('SystemForm', back_populates='form', cascade='all, delete-orphan')  # Many-to-many relationship
+
+class SystemForm(db.Model, SerializerMixin):
+    __tablename__ = 'system_form'
+
+    id_system = db.Column(db.Integer, db.ForeignKey('system.id'), primary_key=True)  # Foreign Key to System
+    id_form = db.Column(db.Integer, db.ForeignKey('form.id'), primary_key=True)  # Foreign Key to Form
+
+    system = db.relationship('System', back_populates='system_forms')  # Relationship to System
+    form = db.relationship('Form', back_populates='system_forms')  # Relationship to Form
+
+    def __init__(self, id_system=None, id_form=None, system=None, form=None):
+        if system and form:
+            self.id_system = system.id
+            self.id_form = form.id
+        elif id_system and id_form:
+            self.id_system = id_system
+            self.id_form = id_form
+        else:
+            raise ValueError("Either system and form objects or id_system and id_form must be provided")
+
 
 
 class Equation(db.Model, SerializerMixin):
