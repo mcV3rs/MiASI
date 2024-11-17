@@ -29,17 +29,23 @@ def populate_db():
     # Sample data for Form table
     forms = [
         Form(id=1, name="height", name_human_readable="Wzrost", input_type="number",
-             description="Wzrost w metrach", order=1, validation_rule="^[0-9]+(\.[0-9]+)?$"),
+             description="Wzrost w metrach", validation_rule="^[0-9]+(\.[0-9]+)?$"),
         Form(id=2, name="weight", name_human_readable="Waga", input_type="number",
-             description="Waga w kilogramach", order=2, validation_rule="^[0-9]+(\.[0-9]+)?$"),
+             description="Waga w kilogramach", validation_rule="^[0-9]+(\.[0-9]+)?$"),
         Form(id=3, name="age", name_human_readable="Wiek", input_type="number",
-             description="Wiek w pełnych latach", order=3, validation_rule="^[0-9]+$")
+             description="Wiek w pełnych latach", validation_rule="^[0-9]+$"),
+        Form(id=4, name="sex", name_human_readable="Płeć", input_type="sex",
+             description="Wybierz swoją płeć")
     ]
 
     # Sample data for Equation table
     equations = [
         Equation(id=1, id_system=1, name="BMI", name_human_readable="Body Mass Index",
-                 formula="weight / (height ** 2)")
+                 formula="weight / (height ** 2)"),
+        Equation(id=2, id_system=2, name="BMR_Male", name_human_readable="Basal Metabolic Rate - Male",
+                 formula="66 + (13.7 * weight) + (500 * height) - (5.8 * age)"),
+        Equation(id=3, id_system=2, name="BMR_Female", name_human_readable="Basal Metabolic Rate - Female",
+                 formula="655 + (9.6 * weight) + (180 * height) - (4.7 * age)")
     ]
 
     # Sample data for EquationFields table
@@ -61,8 +67,13 @@ def populate_db():
     ]
 
     # Sample data for SystemForm table (many-to-many relationships)
-    system_forms = [SystemForm(id_system=1, id_form=1), SystemForm(id_system=1, id_form=2),
-                    SystemForm(id_system=2, id_form=2), SystemForm(system=systems[1], form=forms[2])]
+    system_forms = [
+        SystemForm(id_system=1, id_form=1),
+        SystemForm(id_system=1, id_form=2),
+        SystemForm(id_system=2, id_form=2),
+        SystemForm(system=systems[1], form=forms[2]),
+        SystemForm(system=systems[1], form=forms[3]),
+    ]
 
     # Add all sample data to the session
     db.session.bulk_save_objects(systems)

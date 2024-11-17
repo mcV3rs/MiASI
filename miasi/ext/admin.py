@@ -5,6 +5,7 @@ from flask_admin.base import AdminIndexView
 from flask_admin.form import Select2Widget
 from flask_simplelogin import login_required
 from wtforms.fields.choices import SelectField
+from wtforms.fields.simple import StringField
 from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 
 from miasi.ext.database import db
@@ -26,14 +27,43 @@ class ProtectedModelView(ModelView):
 class FormAdmin(ModelView):
     """Admin panel for the Form table."""
     column_list = ("name", "name_human_readable", "description")
-    form_columns = ("name", "name_human_readable", "input_type", "description", "order", "validation_rule")
+    form_columns = ("name", "name_human_readable", "input_type", "description", "order", "validation_rule", "select_options")
+
+    def __init__(self, model, session, **kwargs):
+        super().__init__(model, session, **kwargs)
+        self.extra_js = ["/static/js/admin_dynamic_fields.js"]  # Dodanie własnego JS
 
     form_extra_fields = {
         "input_type": SelectField(
             "Input Type",
-            choices=[("text", "Text"), ("number", "Number"), ("sex", "Sex")]
-        )
+            choices=[
+                ("text", "Text"),
+                ("number", "Number"),
+                ("sex", "Sex"),
+                ("select", "Select")  # Nowy typ pola
+            ],
+            render_kw={"id": "input_type"}  # ID dla JavaScript
+        ),
+        "select_options": StringField(
+            "Select Options",
+            description="Enter options separated by commas (e.g., Option1, Option2, Option3)",
+            render_kw={
+                "id": "select_options",  # ID dla JavaScript
+                "disabled": True,  # Domyślnie wyłączone
+                "placeholder": "Add options for the select field"
+            }
+        ),
     }
+
+    def on_model_change(self, form, model, is_created):
+        """
+        Handle the saving of the select_options if input_type is 'select'.
+        """
+        if form.input_type.data == "select":
+            model.select_options = form.select_options.data  # Save options
+        else:
+            model.select_options = None  # Clear options for non-select types
+        super().on_model_change(form, model, is_created)
 
 
 class SystemAdmin(ModelView):

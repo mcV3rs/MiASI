@@ -23,6 +23,13 @@
                                 <option value="1">Mężczyzna</option>
                                 <option value="0">Kobieta</option>
                             </select>
+                        {% elif form.input_type == 'select' %}
+                            <select class="form-control" id="{{ form.name }}" name="{{ form.name }}">
+                                <option value="" disabled selected>{{ form.description }}</option>
+                                {% for option in form.select_options %}
+                                    <option value="{{ option }}">{{ option }}</option>
+                                {% endfor %}
+                            </select>
                         {% endif %}
                     </div>
                 {% endfor %}

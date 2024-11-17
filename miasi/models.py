@@ -25,8 +25,9 @@ class Form(db.Model, SerializerMixin):
     name_human_readable = db.Column(db.String(512))  # Form name used in the user interface
     input_type = db.Column(db.String(50))  # Form field type
     description = db.Column(db.Text)  # Form description
-    order = db.Column(db.Integer, nullable=True)  # Display order of the field
+    order = db.Column(db.Integer, nullable=True)  # Display order of the field TODO - prawdopodobnie niepotrzebne
     validation_rule = db.Column(db.String(512), nullable=True)  # Validation rule, e.g., regex
+    select_options = db.Column(db.Text, nullable=True)  # Options for select fields
 
     system_forms = db.relationship('SystemForm', back_populates='form', cascade='all, delete-orphan')  # Many-to-many relationship
 
@@ -58,6 +59,7 @@ class Equation(db.Model, SerializerMixin):
     name = db.Column(db.String(140))  # Nazwa równania, używana w kodzie
     name_human_readable = db.Column(db.String(512))  # Nazwa równania, używana w interfejsie użytkownika
     formula = db.Column(db.Text)  # Wyrażenie matematyczne jako string (np. "weight / (height ** 2)")
+    sex = db.Column(db.Integer, nullable=True)  # None - both, 1 - Male, 0 - Female
 
     system = db.relationship('System', backref='equations')  # Powiązanie z tabelą System
 

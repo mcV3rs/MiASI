@@ -16,8 +16,11 @@ def system(system_id):
     # Pobranie z bazy danych formularzy przypisanych do systemu
     forms = [sf.form for sf in system.system_forms]
 
-    print(f"TestModel: {system.name}")
-    print(f"Forms: {[form.name_human_readable for form in forms]}")
+    # Sprawdzenie, czy którykolwiek z pól formularza jest typu select
+    for form in forms:
+        if form.input_type == "select":
+            form.select_options = form.select_options.split(",")
+            print(f"Opcje dla pola {form.name}: {form.select_options}")
 
     return render_template("system.html", system=system, forms=forms)
 
