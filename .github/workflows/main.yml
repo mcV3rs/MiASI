@@ -18,12 +18,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.9, 3,10, 3,11, 3.12]
+        python-version: [3.12]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install project
@@ -35,12 +35,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.9, 3,10, 3,11, 3.12]
+        python-version: [3.12]
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install project
@@ -49,19 +49,17 @@ jobs:
         run: make test
       - name: "Upload coverage to Codecov"
         uses: codecov/codecov-action@v1
-        # with:
-        #   fail_ci_if_error: true
 
   tests_mac:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.9, 3,10, 3,11, 3.12]
+        python-version: [3.12]
         os: [macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install project
@@ -73,12 +71,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.9, 3,10, 3,11, 3.12]
+        python-version: [3.12]
         os: [windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Pip
