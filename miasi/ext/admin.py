@@ -32,6 +32,7 @@ class SystemAdmin(ModelView):
     """Admin panel for the System table."""
     column_list = ("name", "name_human_readable", "description")
     form_columns = ("name", "name_human_readable", "description", "forms")
+    form_changed = False
 
     form_extra_fields = {
         "forms": QuerySelectMultipleField(
@@ -74,11 +75,22 @@ class SystemAdmin(ModelView):
     # def edit_form(self, obj=None):
     #     """Customize the edit form."""
     #     form = super().edit_form(obj)
-    #     if obj:
+    #     if obj and not self.form_changed:
     #         # Pobierz przypisane formularze do systemu
     #         form.forms.data = [system_form.form for system_form in obj.system_forms]
     #         print(f"Form Data in Edit: {form.forms.data}")  # Debugging line
+    #         self.form_changed = True
     #     return form
+
+    # Funkcja aktywowana przy przesłaniu formularza
+    def on_form_prefill(self, form, id):
+        """Pre-fill the form with the data from the database."""
+        # Pobierz obiekt systemu
+        system = System.query.get(id)
+        if system:
+            # Pobierz przypisane formularze do systemu
+            form.forms.data = [system_form.form for system_form in system.system_forms]
+        print(f"Form Data in Prefill: {form.forms.data}")
 
 
 class EquationAdmin(sqla.ModelView):
