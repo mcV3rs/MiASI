@@ -9,53 +9,103 @@ class FormsSubmissionResource(Resource):
         return jsonify({"forms": [form.to_dict() for form in forms]})
 
     def post(self, system_id):
+        # Pobranie systemu
         system = System.query.filter_by(id=system_id).first() or abort(404, "System not found")
-        data = request.get_json()
 
-        # Fetch the relevant equations for the system
+        # Pobranie danych z żądania
+        try:
+            data = request.get_json()
+            if not data:
+                return {"message": "No data provided"}, 400
+        except Exception as e:
+            return {"message": f"Error parsing input data: {str(e)}"}, 400
+
+        # Pobranie wymaganych pól
+        try:
+            required_forms = [sf.form for sf in system.system_forms]
+            required_fields = [form.name for form in required_forms]
+        except Exception as e:
+            return {"message": f"Error retrieving required fields: {str(e)}"}, 500
+
+        # Walidacja danych
+        missing_fields = [field for field in required_fields if field not in data]
+        if missing_fields:
+            return {"message": f"Missing required fields: {', '.join(missing_fields)}"}, 400
+
+        # Przetwarzanie danych
+        processed_data = {}
+        try:
+            for form in required_forms:
+                field_name = form.name
+                if field_name in data:
+                    field_value = data[field_name]
+                    if form.input_type == 'number':
+                        # Rzutowanie do typu float dla pól typu "number"
+                        processed_data[field_name] = float(field_value)
+                    else:
+                        # Zachowaj wartość bez zmian dla innych typów
+                        processed_data[field_name] = field_value
+        except Exception as e:
+            return {"message": f"Error processing data: {str(e)}"}, 400
+
+        # Sprawdzamy, ile równań jest powiązanych z systemem
         equations = Equation.query.filter_by(id_system=system.id).all()
         if not equations:
             return {"message": "No equations found for this system"}, 404
 
+        # Sprawdzamy, czy użytkownik podał płeć w formularzu
+        user_sex = int(processed_data.get("sex", None))
+
+        # Filtrujemy równania zależne od płci
+        filtered_equations = []
         for equation in equations:
-            # Fetch the fields for the equation
-            fields = EquationFields.query.filter_by(id_equation=equation.id).all()
-            if not fields:
-                continue
+            if equation.sex == "None" or equation.sex == user_sex:
+                filtered_equations.append(equation)
 
-            # Prepare the variables for the equation
-            variables = {}
-            for field in fields:
-                form_field = Form.query.filter_by(id=field.id_form).first()
-                if form_field and form_field.name in data:
-                    # Convert the data to the appropriate type
-                    if form_field.input_type == 'number':
-                        variables[field.variable_name] = float(data[form_field.name])
-                    elif form_field.input_type == 'date':
-                        variables[field.variable_name] = data[form_field.name]  # Assuming date is in a proper format
-                    elif form_field.input_type == 'email':
-                        variables[field.variable_name] = data[form_field.name]
-                    elif form_field.input_type == 'textarea':
-                        variables[field.variable_name] = data[form_field.name]
-                    else:  # Default to text
-                        variables[field.variable_name] = data[form_field.name]
+        # Zwrócenie równań pasujących do płci
+        if not filtered_equations:
+            return {"message": "No equations match the provided sex"}, 404
 
-            # Calculate the value using the equation formula
+        # Przygotowanie zmiennych do obliczeń
+        results = []
+        for equation in filtered_equations:
+            variables = processed_data
+
+            # Obliczanie równania
             try:
-                print("Equation formula:", equation.formula)
-                print("Variables:", variables)
                 result = eval(equation.formula, {}, variables)
+                results.append({
+                    "equation_name": equation.name_human_readable,
+                    "result": round(result, 2)
+                })
             except Exception as e:
                 return {"message": f"Error calculating equation {equation.name_human_readable}: {str(e)}"}, 500
 
-            # Fetch the relevant knowledge entries for the equation
-            knowledge_entries = Knowledge.query.filter_by(id_system=system.id).all()
+        # Pobranie wpisów wiedzy z tabeli Knowledge dla aktualnego systemu
+        knowledge_entries = Knowledge.query.filter_by(id_system=system.id).all()
+
+        # Jeśli brak wpisów w tabeli Knowledge, zwróć wyniki obliczeń
+        if not knowledge_entries:
+            return {"message": "Equations calculated successfully", "results": results}, 201
+
+        # Jeśli istnieją wpisy w Knowledge, porównaj obliczone wartości z warunkami
+        advice = []
+        for result in results:
             for entry in knowledge_entries:
                 try:
-                    if eval(entry.condition, {}, {"value": result}):
-                        advice = entry.advice
+                    if eval(entry.condition, {}, {"value": result["result"]}):
+                        advice.append({
+                            "equation_name": result["equation_name"],
+                            "advice": entry.advice
+                        })
                 except Exception as e:
                     return {
-                        "message": f"Error evaluating knowledge condition for {equation.name_human_readable}: {str(e)}"}, 500
+                        "message": f"Error evaluating knowledge condition for {result['equation_name']}: {str(e)}"}, 500
 
-        return {"message": "Form submitted successfully", "result": result, "advice": advice}, 201
+        # Zwracanie wyników wraz z radami, jeśli takie istnieją
+        if advice:
+            return {"message": "Equations calculated successfully with advice", "results": results,
+                    "advice": advice}, 201
+        else:
+            return {"message": "Equations calculated successfully, but no advice available",
+                    "results": results}, 201

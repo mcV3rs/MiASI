@@ -50,8 +50,6 @@ class SystemForm(db.Model, SerializerMixin):
         else:
             raise ValueError("Either system and form objects or id_system and id_form must be provided")
 
-
-
 class Equation(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)  # KLUCZ GŁÓWNY
     id_system = db.Column(db.Integer, db.ForeignKey('system.id'), nullable=False)  # KLUCZ OBCY DO SYSTEMU

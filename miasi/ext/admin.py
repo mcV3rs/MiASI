@@ -25,7 +25,9 @@ class ProtectedModelView(ModelView):
 
 # Specjalne widoki
 class FormAdmin(ModelView):
-    """Admin panel for the Form table."""
+    """
+    Panel administracyjny dla tabeli Form.
+    """
     column_list = ("name", "name_human_readable", "description")
     form_columns = ("name", "name_human_readable", "input_type", "description", "order", "validation_rule", "select_options")
 
@@ -110,17 +112,6 @@ class SystemAdmin(ModelView):
 
         super().on_model_change(form, model, is_created)
 
-    # def edit_form(self, obj=None):
-    #     """Customize the edit form."""
-    #     form = super().edit_form(obj)
-    #     if obj and not self.form_changed:
-    #         # Pobierz przypisane formularze do systemu
-    #         form.forms.data = [system_form.form for system_form in obj.system_forms]
-    #         print(f"Form Data in Edit: {form.forms.data}")  # Debugging line
-    #         self.form_changed = True
-    #     return form
-
-    # Funkcja aktywowana przy przesłaniu formularza
     def on_form_prefill(self, form, id):
         """Pre-fill the form with the data from the database."""
         # Pobierz obiekt systemu
@@ -132,7 +123,8 @@ class SystemAdmin(ModelView):
 
 
 class EquationAdmin(sqla.ModelView):
-    form_columns = ['name', 'name_human_readable', 'formula', 'system']
+    column_list = ("name_human_readable", 'formula', "sex")
+    form_columns = ['name', 'name_human_readable', 'formula', 'system', 'sex']
 
     form_extra_fields = {
         'system': QuerySelectField(
@@ -140,6 +132,14 @@ class EquationAdmin(sqla.ModelView):
             query_factory=lambda: db.session.query(System),
             get_label='name_human_readable',
             allow_blank=False
+        ),
+        'sex': SelectField(
+            label='Sex',
+            choices=[
+                (None, 'Nie zależy od płci'),
+                (1, 'Mężczyźni'),
+                (0, 'Kobiety')
+            ]
         )
     }
 

@@ -35,34 +35,105 @@
                 {% endfor %}
                 <button type="submit" class="btn btn-primary">Prześlij</button>
             </form>
+            <!-- Element do wyświetlania wiadomości głównej -->
             <div id="responseMessage"></div>
+
+            <!-- Element do wyświetlania wyników równań -->
+
+            <h3>Results:</h3>
+            <div id="resultsContainer">
+            </div>
+
+            <!-- Element do wyświetlania porad -->
+
+            <h3>Advice:</h3>
+            <div id="adviceContainer">
+            </div>
         </div>
     </div>
 
     <script>
-        document.getElementById('systemForm').addEventListener('submit', function (event) {
-            event.preventDefault(); // Prevent the default form submission
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('systemForm').addEventListener('submit', function (event) {
+                event.preventDefault(); // Prevent the default form submission
 
-            const form = event.target;
-            const formData = new FormData(form);
-            const jsonData = JSON.stringify(Object.fromEntries(formData.entries()));
+                const form = event.target;
+                const formData = new FormData(form);
+                const jsonData = JSON.stringify(Object.fromEntries(formData.entries()));
 
-            fetch(`/api/v1/system/{{ system.id }}/form/submit`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: jsonData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('responseMessage').innerText = data.message + ' - ' + data.result + ' - ' + data.advice;
-                    console.log(data);
+                fetch(`/api/v1/system/{{ system.id }}/form/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: jsonData
                 })
-                .catch(error => {
-                    document.getElementById('responseMessage').innerText = 'An error occurred: ' + error.message;
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        // Debugging: log the entire response to check the structure of the data
+                        console.log(data);
+
+                        // Display the main message
+                        const responseMessage = document.getElementById('responseMessage');
+                        if (responseMessage) {
+                            responseMessage.innerText = `${data.message}`;
+                        }
+
+                        // Display the equations and advice
+                        displayResultsAndAdvice(data);
+
+                        console.log(data); // Log the response data for debugging
+                    })
+                    .catch(error => {
+                        const responseMessage = document.getElementById('responseMessage');
+                        if (responseMessage) {
+                            responseMessage.innerText = 'An error occurred: ' + error.message;
+                        }
+                    });
+            });
+
+            // Function to display equations and advice
+            function displayResultsAndAdvice(data) {
+                const resultsContainer = document.getElementById('resultsContainer');
+                const adviceContainer = document.getElementById('adviceContainer');
+
+                if (resultsContainer) {
+                    resultsContainer.innerHTML = ''; // Clear previous results
+
+                    // Display the results
+                    if (data.results && Array.isArray(data.results)) {
+                        const resultsList = document.createElement('ul');
+                        data.results.forEach(result => {
+                            const listItem = document.createElement('li');
+                            listItem.innerText = `${result.equation_name}: ${result.result}`;
+                            resultsList.appendChild(listItem);
+                        });
+                        resultsContainer.appendChild(resultsList);
+                    } else {
+                        resultsContainer.innerHTML = '<p>No results available.</p>';
+                    }
+                }
+
+                if (adviceContainer) {
+                    adviceContainer.innerHTML = ''; // Clear previous advice
+
+                    // Display the advice
+                    if (data.advice && Array.isArray(data.advice)) {
+                        const adviceList = document.createElement('ul');
+                        data.advice.forEach(adviceItem => {
+                            const listItem = document.createElement('li');
+                            listItem.innerText = `${adviceItem.equation_name}: ${adviceItem.advice}`;
+                            adviceList.appendChild(listItem);
+                        });
+                        adviceContainer.appendChild(adviceList);
+                    } else {
+                        adviceContainer.innerHTML = '<p>No advice available.</p>';
+                    }
+                }
+            }
         });
+
+
     </script>
 
 {% endblock %}
