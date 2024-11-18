@@ -23,7 +23,7 @@ def create_user(username, password):
     """Creates a new user"""
     if User.query.filter_by(username=username).first():
         raise RuntimeError(f"{username} already exists")
-    user = User(username=username, password=generate_password_hash(password))
+    user = User(username=username, password_plain=password)
     db.session.add(user)
     db.session.commit()
     return user

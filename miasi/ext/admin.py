@@ -9,7 +9,7 @@ from wtforms.fields.simple import StringField
 from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 
 from miasi.ext.database import db
-from miasi.models import System, Form, Equation, EquationFields, Knowledge, SystemForm
+from miasi.models import System, Form, Equation, Knowledge, SystemForm
 
 
 # Chronione widoki
@@ -29,7 +29,7 @@ class FormAdmin(ModelView):
     Panel administracyjny dla tabeli Form.
     """
     column_list = ("name", "name_human_readable", "description")
-    form_columns = ("name", "name_human_readable", "input_type", "description", "order", "validation_rule", "select_options")
+    form_columns = ("name", "name_human_readable", "input_type", "description", "select_options")
 
     def __init__(self, model, session, **kwargs):
         super().__init__(model, session, **kwargs)
@@ -152,36 +152,6 @@ class EquationAdmin(sqla.ModelView):
             }
         }
 
-class EquationFieldsAdmin(sqla.ModelView):
-    form_columns = ['variable_name', 'equation', 'form_field']
-
-    form_extra_fields = {
-        'equation': QuerySelectField(
-            label='Equation',
-            query_factory=lambda: db.session.query(Equation),
-            get_label='name_human_readable',
-            allow_blank=False
-        ),
-        'form_field': QuerySelectField(
-            label='Form Field',
-            query_factory=lambda: db.session.query(Form),
-            get_label='name_human_readable',
-            allow_blank=False
-        )
-    }
-
-    def __init__(self, model, session, **kwargs):
-        super().__init__(model, session, **kwargs)
-        self.form_args = {
-            'equation': {
-                'query_factory': lambda: Equation.query,
-                'get_label': 'name_human_readable'
-            },
-            'form_field': {
-                'query_factory': lambda: Form.query,
-                'get_label': 'name_human_readable'
-            }
-        }
 
 class KnowledgeAdmin(sqla.ModelView):
     form_columns = ['condition', 'advice', 'system', 'equation']
@@ -222,10 +192,8 @@ def init_app(app):
     admin.init_app(app)
 
     # Widoki
-    # admin.add_view(ProtectedModelView(System, db.session))
     admin.add_view(FormAdmin(Form, db.session))
     admin.add_view(SystemAdmin(System, db.session))
 
     admin.add_view(EquationAdmin(Equation, db.session))
-    admin.add_view(EquationFieldsAdmin(EquationFields, db.session))
     admin.add_view(KnowledgeAdmin(Knowledge, db.session))

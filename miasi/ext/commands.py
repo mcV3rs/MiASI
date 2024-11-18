@@ -2,7 +2,7 @@ import click
 
 from miasi.ext.auth import create_user
 from miasi.ext.database import db
-from miasi.models import System, Form, Equation, EquationFields, Knowledge, SystemForm
+from miasi.models import System, Form, Equation, Knowledge, SystemForm
 
 
 def create_db():
@@ -18,55 +18,44 @@ def drop_db():
 def populate_db():
     """Populate db with sample data"""
 
-    # Sample data for System table
     systems = [
-        System(id=1, name="BMI_Calculator", name_human_readable="Kalkulator BMI",
+        System(name="BMI_Calculator", name_human_readable="Kalkulator BMI",
                description="System, który umożliwi Ci sprawdzenie swojego BMI"),
-        System(id=2, name="BMR_Calculator", name_human_readable="Kalkulator BMR",
+        System(name="BMR_Calculator", name_human_readable="Kalkulator BMR",
                description="Kalkulator, który pozwoli Ci obliczyć zapotrzebowanie kaloryczne (BMR)")
     ]
 
-    # Sample data for Form table
     forms = [
-        Form(id=1, name="height", name_human_readable="Wzrost", input_type="number",
-             description="Wzrost w metrach", validation_rule="^[0-9]+(\.[0-9]+)?$"),
-        Form(id=2, name="weight", name_human_readable="Waga", input_type="number",
-             description="Waga w kilogramach", validation_rule="^[0-9]+(\.[0-9]+)?$"),
-        Form(id=3, name="age", name_human_readable="Wiek", input_type="number",
-             description="Wiek w pełnych latach", validation_rule="^[0-9]+$"),
-        Form(id=4, name="sex", name_human_readable="Płeć", input_type="sex",
+        Form(name="height", name_human_readable="Wzrost", input_type="number",
+             description="Wzrost w metrach"),
+        Form(name="weight", name_human_readable="Waga", input_type="number",
+             description="Waga w kilogramach"),
+        Form(name="age", name_human_readable="Wiek", input_type="number",
+             description="Wiek w pełnych latach"),
+        Form(name="sex", name_human_readable="Płeć", input_type="sex",
              description="Wybierz swoją płeć")
     ]
 
-    # Sample data for Equation table
     equations = [
-        Equation(id=1, id_system=1, name="BMI", name_human_readable="Body Mass Index",
+        Equation(id_system=1, name="BMI", name_human_readable="Body Mass Index",
                  formula="weight / (height ** 2)"),
-        Equation(id=2, id_system=2, name="BMR_Male", name_human_readable="Basal Metabolic Rate - Male",
-                 formula="66 + (13.7 * weight) + (500 * height) - (5.8 * age)"),
-        Equation(id=3, id_system=2, name="BMR_Female", name_human_readable="Basal Metabolic Rate - Female",
-                 formula="655 + (9.6 * weight) + (180 * height) - (4.7 * age)")
+        Equation(id_system=2, name="BMR_Male", name_human_readable="Basal Metabolic Rate - Male",
+                 formula="66 + (13.7 * weight) + (500 * height) - (5.8 * age)", sex=1),
+        Equation(id_system=2, name="BMR_Female", name_human_readable="Basal Metabolic Rate - Female",
+                 formula="655 + (9.6 * weight) + (180 * height) - (4.7 * age)", sex=0)
     ]
 
-    # Sample data for EquationFields table
-    equation_fields = [
-        EquationFields(id=1, id_equation=1, id_form=1, variable_name="height"),
-        EquationFields(id=2, id_equation=1, id_form=2, variable_name="weight")
-    ]
-
-    # Sample data for Knowledge table
     knowledge = [
-        Knowledge(id=1, id_system=1, condition="value < 18.5",
+        Knowledge(id_system=1, condition="value < 18.5",
                   advice="Twoja waga jest zbyt niska. Rozważ konsultację z dietetykiem."),
-        Knowledge(id=2, id_system=1, condition="value >= 18.5 and value < 25",
+        Knowledge(id_system=1, condition="value >= 18.5 and value < 25",
                   advice="Twoja waga jest w normie. Utrzymuj zdrowy styl życia!"),
-        Knowledge(id=3, id_system=1, condition="value >= 25 and value < 30",
+        Knowledge(id_system=1, condition="value >= 25 and value < 30",
                   advice="Masz nadwagę. Rozważ zwiększenie aktywności fizycznej i konsultację z dietetykiem."),
-        Knowledge(id=4, id_system=1, condition="value >= 30",
+        Knowledge(id_system=1, condition="value >= 30",
                   advice="Masz otyłość. Skonsultuj się z lekarzem i dietetykiem.")
     ]
 
-    # Sample data for SystemForm table (many-to-many relationships)
     system_forms = [
         SystemForm(id_system=1, id_form=1),
         SystemForm(id_system=1, id_form=2),
@@ -75,22 +64,18 @@ def populate_db():
         SystemForm(system=systems[1], form=forms[3]),
     ]
 
-    # Add all sample data to the session
     db.session.bulk_save_objects(systems)
     db.session.bulk_save_objects(forms)
     db.session.bulk_save_objects(equations)
-    db.session.bulk_save_objects(equation_fields)
     db.session.bulk_save_objects(knowledge)
     db.session.bulk_save_objects(system_forms)
 
-    # Commit changes to the database
     db.session.commit()
 
     return {
         "systems": System.query.all(),
         "forms": Form.query.all(),
         "equations": Equation.query.all(),
-        "equation_fields": EquationFields.query.all(),
         "knowledge": Knowledge.query.all(),
         "system_forms": SystemForm.query.all()
     }

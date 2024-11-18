@@ -1,6 +1,6 @@
 from flask import abort, jsonify, request
 from flask_restful import Resource
-from miasi.models import System, Form, Equation, EquationFields, Knowledge
+from miasi.models import System, Equation, Knowledge
 
 class FormsSubmissionResource(Resource):
     def get(self, system_id):
