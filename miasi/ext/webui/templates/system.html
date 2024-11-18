@@ -75,6 +75,8 @@
                             responseMessage.innerText = `${data.message}`;
                         }
 
+                        console.log(data);
+
                         // Display the equations and advice
                         displayResultsAndAdvice(data);
                     })
@@ -112,14 +114,8 @@
                     adviceContainer.innerHTML = ''; // Clear previous advice
 
                     // Display the advice
-                    if (data.advice && Array.isArray(data.advice)) {
-                        const adviceList = document.createElement('ul');
-                        data.advice.forEach(adviceItem => {
-                            const listItem = document.createElement('li');
-                            listItem.innerText = `${adviceItem.equation_name}: ${adviceItem.advice}`;
-                            adviceList.appendChild(listItem);
-                        });
-                        adviceContainer.appendChild(adviceList);
+                    if (data.advice) {
+                        adviceContainer.innerHTML = data.advice;
                     } else {
                         adviceContainer.innerHTML = '<p>No advice available.</p>';
                     }

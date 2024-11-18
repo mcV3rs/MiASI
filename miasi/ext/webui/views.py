@@ -20,7 +20,7 @@ def system(system_id):
     for form in forms:
         if form.input_type == "select":
             form.select_options = form.select_options.split(",")
-            print(f"Opcje dla pola {form.name}: {form.select_options}")
+            form.select_values = form.select_values.split(',')
 
     return render_template("system.html", system=system, forms=forms)
 

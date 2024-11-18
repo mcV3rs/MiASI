@@ -1,9 +1,13 @@
+import os
+
+from flask import current_app, send_file, request, flash, redirect, url_for
 from flask_admin import Admin
 from flask_admin.contrib import sqla
 from flask_admin.contrib.sqla import ModelView
-from flask_admin.base import AdminIndexView
+from flask_admin.base import AdminIndexView, BaseView, expose
 from flask_admin.form import Select2Widget
 from flask_simplelogin import login_required
+from werkzeug.utils import secure_filename
 from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import StringField
 from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
@@ -23,13 +27,72 @@ class ProtectedModelView(ModelView):
     def _handle_view(self, name, **kwargs):
         return super()._handle_view(name, **kwargs)
 
+class DownloadDatabaseView(BaseView):
+    @expose('/')
+    @login_required
+    def index(self):
+        """Send the database file for download."""
+        # Ścieżka do pliku bazy danych
+        db_filename = current_app.config.get('SQLALCHEMY_DATABASE_URI').replace('sqlite:///', '')
+        db_path = os.path.join(current_app.instance_path, db_filename)
+
+        print(f"Database Path: {db_path}")
+
+        # Sprawdź, czy plik istnieje
+        if not os.path.exists(db_path):
+            return "Database file not found.", 404
+
+        # Pobierz plik bazy danych
+        return send_file(
+            db_path,
+            as_attachment=True,
+            download_name="database.db",
+            mimetype="application/octet-stream"
+        )
+
+class ImportDatabaseView(BaseView):
+    @expose('/', methods=['GET', 'POST'])
+    @login_required
+    def index(self):
+        if request.method == 'POST':
+            # Sprawdzenie, czy w żądaniu znajduje się plik
+            if 'file' not in request.files:
+                flash("No file part in the request.", "error")
+                return redirect(request.url)
+
+            file = request.files['file']
+
+            # Sprawdzenie, czy wybrano plik
+            if file.filename == '':
+                flash("No file selected.", "error")
+                return redirect(request.url)
+
+            # Sprawdzenie poprawności pliku
+            if file and file.filename.endswith('.db'):
+                filename = secure_filename(file.filename)
+                db_path = os.path.join(current_app.instance_path, filename)
+
+                # Zapisanie pliku do folderu instance
+                file.save(db_path)
+                flash("Database imported successfully.", "success")
+
+                # Przeładowanie aplikacji
+                os.utime(db_path, None)  # Dotknięcie pliku, aby Flask zauważył zmianę
+                return redirect(url_for('admin.index'))
+
+            flash("Invalid file format. Please upload a .db file.", "error")
+            return redirect(request.url)
+
+        # Formularz przesyłania pliku
+        return self.render('admin/import_database.html')
+
 # Specjalne widoki
 class FormAdmin(ModelView):
     """
     Panel administracyjny dla tabeli Form.
     """
     column_list = ("name", "name_human_readable", "description")
-    form_columns = ("name", "name_human_readable", "input_type", "description", "select_options")
+    form_columns = ("name", "name_human_readable", "input_type", "description", "select_options", "select_values")
 
     def __init__(self, model, session, **kwargs):
         super().__init__(model, session, **kwargs)
@@ -55,6 +118,15 @@ class FormAdmin(ModelView):
                 "placeholder": "Add options for the select field"
             }
         ),
+        "select_values": StringField(
+            "Select Values",
+            description="Enter values separated by commas (e.g., 1, 2, 3)",
+            render_kw={
+                "id": "select_values",  # ID dla JavaScript
+                "disabled": True,  # Domyślnie wyłączone
+                "placeholder": "Add values for the select field"
+            }
+        )
     }
 
     def on_model_change(self, form, model, is_created):
@@ -191,9 +263,12 @@ def init_app(app):
     admin.template_mode = app.config.FLASK_ADMIN_TEMPLATE_MODE
     admin.init_app(app)
 
-    # Widoki
-    admin.add_view(FormAdmin(Form, db.session))
-    admin.add_view(SystemAdmin(System, db.session))
+    # Widoki do edycji bazy danych
+    admin.add_view(FormAdmin(Form, db.session, name="Pola Formularza"))
+    admin.add_view(SystemAdmin(System, db.session, name="Systemy"))
+    admin.add_view(EquationAdmin(Equation, db.session, name="Równania"))
+    admin.add_view(KnowledgeAdmin(Knowledge, db.session, name="Baza wiedzy"))
 
-    admin.add_view(EquationAdmin(Equation, db.session))
-    admin.add_view(KnowledgeAdmin(Knowledge, db.session))
+    # Dodatkowe widoki
+    admin.add_view(DownloadDatabaseView(name="Eksport", endpoint="download-database"))
+    admin.add_view(ImportDatabaseView(name="Import", endpoint="import-database"))

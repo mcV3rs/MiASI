@@ -70,10 +70,11 @@ class Form(db.Model, SerializerMixin):
     input_type = db.Column(db.String(50))  # Typ pola formularza (np. "number", "text", "select")
     description = db.Column(db.Text)  # Opis pola formularza
     select_options = db.Column(db.Text, nullable=True)  # Opcje wyboru dla pól typu "select"
+    select_values = db.Column(db.Text, nullable=True)  # Wartości wyboru dla pól typu "select"
 
     system_forms = db.relationship('SystemForm', back_populates='form', cascade='all, delete-orphan')  # Relacja wiele-do-wielu
 
-    def __init__(self, name: str, name_human_readable: str, input_type: str, description: str, select_options: str = None):
+    def __init__(self, name: str, name_human_readable: str, input_type: str, description: str, select_options: str = None, select_values: str = None):
         """
         Konstruktor klasy Form
         :param name: Nazwa pola formularza używana w kodzie
@@ -81,12 +82,14 @@ class Form(db.Model, SerializerMixin):
         :param input_type: Typ pola formularza (np. "number", "text", "select")
         :param description: Opis pola formularza
         :param select_options: Opcje wyboru dla pól typu "select"
+        :param select_values: Wartości wyboru dla pól typu "select"
         """
         self.name = name
         self.name_human_readable = name_human_readable
         self.input_type = input_type
         self.description = description
         self.select_options = select_options
+        self.select_values = select_values
 
 class SystemForm(db.Model, SerializerMixin):
     """
