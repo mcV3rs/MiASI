@@ -36,19 +36,18 @@
                 <button type="submit" class="btn btn-primary">Prześlij</button>
             </form>
             <!-- Element do wyświetlania wiadomości głównej -->
+            <h3>Wiadomość DEBUG:</h3>
             <div id="responseMessage"></div>
 
             <!-- Element do wyświetlania wyników równań -->
 
-            <h3>Results:</h3>
-            <div id="resultsContainer">
-            </div>
+            <h3>Wynik obliczeń:</h3>
+            <div id="resultsContainer"></div>
 
             <!-- Element do wyświetlania porad -->
 
-            <h3>Advice:</h3>
-            <div id="adviceContainer">
-            </div>
+            <h3>Porada:</h3>
+            <div id="adviceContainer"></div>
         </div>
     </div>
 
@@ -70,9 +69,6 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        // Debugging: log the entire response to check the structure of the data
-                        console.log(data);
-
                         // Display the main message
                         const responseMessage = document.getElementById('responseMessage');
                         if (responseMessage) {
@@ -81,8 +77,6 @@
 
                         // Display the equations and advice
                         displayResultsAndAdvice(data);
-
-                        console.log(data); // Log the response data for debugging
                     })
                     .catch(error => {
                         const responseMessage = document.getElementById('responseMessage');
