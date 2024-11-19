@@ -226,18 +226,26 @@ class EquationAdmin(sqla.ModelView):
 
 
 class KnowledgeAdmin(sqla.ModelView):
-    form_columns = ['condition', 'advice', 'system', 'equation']
+    # Kolumny wyświetlane w panelu
+    column_list = ['condition', 'advice', 'system.name_human_readable']
+
+    # Mapowanie nazw kolumn na bardziej przyjazne
+    column_labels = {
+        'condition': 'Warunek',
+        'advice': 'Porada',
+        'system.name_human_readable': 'Nazwa systemu'
+    }
+
+    # Kolumny, po których można sortować
+    column_sortable_list = ['condition', 'advice', ('system.name_human_readable', 'system.name_human_readable')]
+
+    # Kolumny dostępne w formularzu
+    form_columns = ['condition', 'advice', 'system']
 
     form_extra_fields = {
         'system': QuerySelectField(
             label='System',
             query_factory=lambda: db.session.query(System),
-            get_label='name_human_readable',
-            allow_blank=False
-        ),
-        'equation': QuerySelectField(
-            label='Equation',
-            query_factory=lambda: db.session.query(Equation),
             get_label='name_human_readable',
             allow_blank=False
         )
@@ -249,12 +257,9 @@ class KnowledgeAdmin(sqla.ModelView):
             'system': {
                 'query_factory': lambda: System.query,
                 'get_label': 'name_human_readable'
-            },
-            'equation': {
-                'query_factory': lambda: Equation.query,
-                'get_label': 'name_human_readable'
             }
         }
+
 
 admin = Admin(index_view=ProtectedAdminIndexView())
 
