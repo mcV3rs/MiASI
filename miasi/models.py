@@ -25,7 +25,7 @@ class User(db.Model, SerializerMixin):
         self.password = password
 
     @staticmethod
-    def _hash_password(password: str):
+    def hash_password(password: str):
         """
         Metoda haszująca hasło użytkownika
         :param password: Hasło w postaci zwykłego tekstu

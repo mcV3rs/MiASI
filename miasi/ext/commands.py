@@ -8,14 +8,16 @@ from miasi.models import System, Form, Equation, Knowledge, SystemForm
 def create_db():
     """Creates database"""
     db.create_all()
+    print("Database created")
 
 
 def drop_db():
     """Cleans database"""
     db.drop_all()
+    print("Database dropped")
 
 
-def populate_db():
+def populate_db(message=False):
     """Populate db with sample data"""
 
     systems = [
@@ -72,6 +74,9 @@ def populate_db():
 
     db.session.commit()
 
+    if message:
+        print("Database populated")
+
     return {
         "systems": System.query.all(),
         "forms": Form.query.all(),
@@ -83,10 +88,11 @@ def populate_db():
 
 def reset_db():
     """Resets database"""
-    drop_db()
-    create_db()
-    populate_db()
+    db.drop_all()
+    db.create_all()
+    populate_db(message=False)
     create_user("admin", "1234")
+    print("Database reset and ready to use")
 
 
 def init_app(app):
