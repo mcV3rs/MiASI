@@ -101,4 +101,3 @@ def init_app(app):
     def add_user(username, password):
         """Adds a new user to the database"""
         return create_user(username, password)
-

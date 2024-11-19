@@ -10,9 +10,9 @@ class User(db.Model, SerializerMixin):
     """
     __tablename__ = 'user'
 
-    id = db.Column(db.Integer, primary_key=True) # KLUCZ GŁÓWNY
+    id = db.Column(db.Integer, primary_key=True)  # KLUCZ GŁÓWNY
 
-    username = db.Column(db.String(140)) # Nazwa użytkownika
+    username = db.Column(db.String(140))  # Nazwa użytkownika
     password = db.Column(db.String(512))
 
     def __init__(self, username: str, password: str):
@@ -32,6 +32,7 @@ class User(db.Model, SerializerMixin):
         """
         return generate_password_hash(password)
 
+
 class System(db.Model, SerializerMixin):
     """
     Model bazy danych reprezentujący system (np. BMI, WHR)
@@ -44,7 +45,8 @@ class System(db.Model, SerializerMixin):
     name_human_readable = db.Column(db.String(512))  # Nazwa systemu używana w interfejsie użytkownika
     description = db.Column(db.Text)  # Opis systemu
 
-    system_forms = db.relationship('SystemForm', back_populates='system', cascade='all, delete-orphan')  # Relacja wiele-do-wielu
+    system_forms = db.relationship('SystemForm', back_populates='system',
+                                   cascade='all, delete-orphan')  # Relacja wiele-do-wielu
 
     def __init__(self, name: str, name_human_readable: str, description: str):
         """
@@ -56,6 +58,7 @@ class System(db.Model, SerializerMixin):
         self.name = name
         self.name_human_readable = name_human_readable
         self.description = description
+
 
 class Form(db.Model, SerializerMixin):
     """
@@ -72,9 +75,11 @@ class Form(db.Model, SerializerMixin):
     select_options = db.Column(db.Text, nullable=True)  # Opcje wyboru dla pól typu "select"
     select_values = db.Column(db.Text, nullable=True)  # Wartości wyboru dla pól typu "select"
 
-    system_forms = db.relationship('SystemForm', back_populates='form', cascade='all, delete-orphan')  # Relacja wiele-do-wielu
+    system_forms = db.relationship('SystemForm', back_populates='form',
+                                   cascade='all, delete-orphan')  # Relacja wiele-do-wielu
 
-    def __init__(self, name: str, name_human_readable: str, input_type: str, description: str, select_options: str = None, select_values: str = None):
+    def __init__(self, name: str, name_human_readable: str, input_type: str, description: str,
+                 select_options: str = None, select_values: str = None):
         """
         Konstruktor klasy Form
         :param name: Nazwa pola formularza używana w kodzie
@@ -91,14 +96,17 @@ class Form(db.Model, SerializerMixin):
         self.select_options = select_options
         self.select_values = select_values
 
+
 class SystemForm(db.Model, SerializerMixin):
     """
     Model bazy danych reprezentujący relację wiele-do-wielu między systemem a formularzem
     """
     __tablename__ = 'system_form'
 
-    id_system = db.Column(db.Integer, db.ForeignKey('system.id'), primary_key=True, nullable=True)  # KLUCZ OBCY DO SYSTEMU
-    id_form = db.Column(db.Integer, db.ForeignKey('form.id'), primary_key=True, nullable=True)  # KLUCZ OBCY DO FORMULARZA
+    id_system = db.Column(db.Integer, db.ForeignKey('system.id'), primary_key=True,
+                          nullable=True)  # KLUCZ OBCY DO SYSTEMU
+    id_form = db.Column(db.Integer, db.ForeignKey('form.id'), primary_key=True,
+                        nullable=True)  # KLUCZ OBCY DO FORMULARZA
 
     system = db.relationship('System', back_populates='system_forms')  # Relacja do System
     form = db.relationship('Form', back_populates='system_forms')  # Relacja do Form
@@ -120,6 +128,7 @@ class SystemForm(db.Model, SerializerMixin):
             self.id_form = id_form
         else:
             raise ValueError("Either system and form objects or id_system and id_form must be provided")
+
 
 class Equation(db.Model, SerializerMixin):
     """
@@ -152,6 +161,7 @@ class Equation(db.Model, SerializerMixin):
         self.name_human_readable = name_human_readable
         self.formula = formula
         self.sex = sex
+
 
 class Knowledge(db.Model, SerializerMixin):
     """

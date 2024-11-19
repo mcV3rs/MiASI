@@ -9,6 +9,7 @@ def index():
 
     return render_template("index.html", systems=systems)
 
+
 def system(system_id):
     # Pobranie z bazy danych systemu o podanym identyfikatorze
     system = System.query.filter_by(id=system_id).first() or abort(404, "Brak systemu")
