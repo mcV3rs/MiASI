@@ -14,7 +14,7 @@ def verify_login(user):
     existing_user = User.query.filter_by(username=username).first()
     if not existing_user:
         return False
-    if check_password_hash(existing_user.password_hash, password):
+    if check_password_hash(existing_user.password, password):
         return True
     return False
 
@@ -23,7 +23,7 @@ def create_user(username, password):
     """Creates a new user"""
     if User.query.filter_by(username=username).first():
         raise RuntimeError(f"{username} already exists")
-    user = User(username=username, password_plain=password)
+    user = User(username=username, password=generate_password_hash(password))
     db.session.add(user)
     db.session.commit()
     return user

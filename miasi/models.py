@@ -13,16 +13,16 @@ class User(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True) # KLUCZ GŁÓWNY
 
     username = db.Column(db.String(140)) # Nazwa użytkownika
-    password_hash = db.Column(db.String(512)) # Hasło użytkownika w postaci zahaszowanej
+    password = db.Column(db.String(512))
 
-    def __init__(self, username: str, password_plain: str):
+    def __init__(self, username: str, password: str):
         """
         Konstruktor klasy User
         :param username: Nazwa użytkownika
-        :param password_plain: Hasło użytkownika w postaci zwykłego tekstu
+        :param password: Hasło użytkownika w postaci zwykłego tekstu
         """
         self.username = username
-        self.password = self._hash_password(password_plain)
+        self.password = password
 
     @staticmethod
     def _hash_password(password: str):
