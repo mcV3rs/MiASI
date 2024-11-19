@@ -22,6 +22,12 @@ def system(system_id):
             form.select_options = form.select_options.split(",")
             form.select_values = form.select_values.split(',')
 
+            form.combined = dict()
+            for i, option in enumerate(form.select_options):
+                form.combined[option] = form.select_values[i]
+
+            print(form.combined)
+
     return render_template("system.html", system=system, forms=forms)
 
 

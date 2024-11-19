@@ -30,8 +30,8 @@
                         {% elif form.input_type == 'select' %}
                             <select class="form-control" id="{{ form.name }}" name="{{ form.name }}" required>
                                 <option value="" disabled selected>{{ form.description }}</option>
-                                {% for option in form.select_options %}
-                                    <option value="{{ option }}">{{ option }}</option>
+                                {% for key, value in form.combined.items() %}
+                                    <option value="{{ value }}">{{ key }}</option>
                                 {% endfor %}
                             </select>
                         {% endif %}

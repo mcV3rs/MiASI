@@ -44,6 +44,8 @@ class FormsSubmissionResource(Resource):
                         processed_data[field_name] = float(field_value)
                     elif form.input_type == 'sex':
                         processed_data[field_name] = int(field_value)
+                    elif form.input_type == 'select':
+                        processed_data[field_name] = float(field_value.strip())
                     else:
                         # Zachowaj wartość bez zmian dla innych typów
                         processed_data[field_name] = field_value.strip()
