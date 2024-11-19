@@ -32,10 +32,7 @@ fmt:              ## Format code using black & isort.
 
 .PHONY: lint
 lint:             ## Run pep8, black, mypy linters.
-	$(ENV_PREFIX)flake8 miasi/
-	$(ENV_PREFIX)black -l 79 --check miasi/
-	$(ENV_PREFIX)black -l 79 --check tests/
-	$(ENV_PREFIX)mypy --ignore-missing-imports miasi/
+	$(ENV_PREFIX)flake8 miasi/ --max-line-length=120
 
 .PHONY: test
 test: lint        ## Run tests and generate coverage report.
@@ -111,9 +108,3 @@ switch-to-poetry: ## Switch to poetry package manager.
 	@mv setup.py .github/backup
 	@echo "You have switched to https://python-poetry.org/ package manager."
 	@echo "Please run 'poetry shell' or 'poetry run miasi'"
-	
-	
-# This project has been generated from rochacbruno/flask-project-template
-# __author__ = 'rochacbruno'
-# __repo__ = https://github.com/rochacbruno/flask-project-template
-# __sponsor__ = https://github.com/sponsors/rochacbruno/

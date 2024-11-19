@@ -10,54 +10,125 @@
             <form id="systemForm" method="post">
                 {% for form in forms %}
                     <div class="form-group">
-                        <label for="{{ form.name }}">{{ form.name_human_readable }}</label>
+                        <label for="{{ form.name }}">
+                            {{ form.name_human_readable }}
+                            <span style="color: red;">*</span>
+                        </label>
                         {% if form.input_type == 'text' %}
                             <input type="text" class="form-control" id="{{ form.name }}" name="{{ form.name }}"
-                                   placeholder="{{ form.description }}">
+                                   placeholder="{{ form.description }}" required>
                         {% elif form.input_type == 'number' %}
                             <input type="number" class="form-control" id="{{ form.name }}" name="{{ form.name }}"
-                                   placeholder="{{ form.description }}" step="any">
-                        {% elif form.input_type == 'email' %}
-                            <input type="email" class="form-control" id="{{ form.name }}" name="{{ form.name }}"
-                                   placeholder="{{ form.description }}">
-                        {% elif form.input_type == 'date' %}
-                            <input type="date" class="form-control" id="{{ form.name }}" name="{{ form.name }}">
-                        {% elif form.input_type == 'textarea' %}
-                            <textarea class="form-control" id="{{ form.name }}" name="{{ form.name }}"
-                                      placeholder="{{ form.description }}"></textarea>
+                                   placeholder="{{ form.description }}" step="any" min="0" required>
+                        {% elif form.input_type == 'sex' %}
+                            <select class="form-control" id="{{ form.name }}" name="{{ form.name }}" required>
+                                <!-- Pole oznaczone jako wymagane -->
+                                <option value="" disabled selected>{{ form.description }}</option>
+                                <option value="1">Mężczyzna</option>
+                                <option value="0">Kobieta</option>
+                            </select>
+                        {% elif form.input_type == 'select' %}
+                            <select class="form-control" id="{{ form.name }}" name="{{ form.name }}" required>
+                                <option value="" disabled selected>{{ form.description }}</option>
+                                {% for key, value in form.combined.items() %}
+                                    <option value="{{ value }}">{{ key }}</option>
+                                {% endfor %}
+                            </select>
                         {% endif %}
                     </div>
+
                 {% endfor %}
                 <button type="submit" class="btn btn-primary">Prześlij</button>
             </form>
+            <!-- Element do wyświetlania wiadomości głównej -->
+            <h3>Wiadomość DEBUG:</h3>
             <div id="responseMessage"></div>
+
+            <!-- Element do wyświetlania wyników równań -->
+
+            <h3>Wynik obliczeń:</h3>
+            <div id="resultsContainer"></div>
+
+            <!-- Element do wyświetlania porad -->
+
+            <h3>Porada:</h3>
+            <div id="adviceContainer"></div>
         </div>
     </div>
 
     <script>
-        document.getElementById('systemForm').addEventListener('submit', function (event) {
-            event.preventDefault(); // Prevent the default form submission
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('systemForm').addEventListener('submit', function (event) {
+                event.preventDefault(); // Prevent the default form submission
 
-            const form = event.target;
-            const formData = new FormData(form);
-            const jsonData = JSON.stringify(Object.fromEntries(formData.entries()));
+                const form = event.target;
+                const formData = new FormData(form);
+                const jsonData = JSON.stringify(Object.fromEntries(formData.entries()));
 
-            fetch(`/api/v1/system/{{ system.id }}/form/submit`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: jsonData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('responseMessage').innerText = data.message + ' - ' + data.result + ' - ' + data.advice;
-                    console.log(data);
+                fetch(`/api/v1/system/{{ system.id }}/form/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: jsonData
                 })
-                .catch(error => {
-                    document.getElementById('responseMessage').innerText = 'An error occurred: ' + error.message;
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        // Display the main message
+                        const responseMessage = document.getElementById('responseMessage');
+                        if (responseMessage) {
+                            responseMessage.innerText = `${data.message}`;
+                        }
+
+                        console.log(data);
+
+                        // Display the equations and advice
+                        displayResultsAndAdvice(data);
+                    })
+                    .catch(error => {
+                        const responseMessage = document.getElementById('responseMessage');
+                        if (responseMessage) {
+                            responseMessage.innerText = 'An error occurred: ' + error.message;
+                        }
+                    });
+            });
+
+            // Function to display equations and advice
+            function displayResultsAndAdvice(data) {
+                const resultsContainer = document.getElementById('resultsContainer');
+                const adviceContainer = document.getElementById('adviceContainer');
+
+                if (resultsContainer) {
+                    resultsContainer.innerHTML = ''; // Clear previous results
+
+                    // Display the results
+                    if (data.results && Array.isArray(data.results)) {
+                        const resultsList = document.createElement('ul');
+                        data.results.forEach(result => {
+                            const listItem = document.createElement('li');
+                            listItem.innerText = `${result.equation_name}: ${result.result}`;
+                            resultsList.appendChild(listItem);
+                        });
+                        resultsContainer.appendChild(resultsList);
+                    } else {
+                        resultsContainer.innerHTML = '<p>No results available.</p>';
+                    }
+                }
+
+                if (adviceContainer) {
+                    adviceContainer.innerHTML = ''; // Clear previous advice
+
+                    // Display the advice
+                    if (data.advice) {
+                        adviceContainer.innerHTML = data.advice;
+                    } else {
+                        adviceContainer.innerHTML = '<p>No advice available.</p>';
+                    }
+                }
+            }
         });
+
+
     </script>
 
 {% endblock %}

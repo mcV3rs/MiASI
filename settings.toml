@@ -1,6 +1,6 @@
 [default]
 FLASK_DEBUG  = false
-FLASK_ADMIN_TEMPLATE_MODE = "bootstrap3"
+FLASK_ADMIN_TEMPLATE_MODE = "bootstrap4"
 FLASK_ADMIN_SWATCH = 'cerulean'
 SQLALCHEMY_DATABASE_URI = 'sqlite:///development.db'
 TITLE = "miasi"
@@ -26,7 +26,7 @@ TEMPLATES_AUTO_RELOAD = true
 FLASK_DEBUG  = true
 DEBUG_TOOLBAR_ENABLED = true
 DEBUG_TB_INTERCEPT_REDIRECTS = false
-DEBUG_TB_PROFILER_ENABLED = true
+DEBUG_TB_PROFILER_ENABLED = false
 DEBUG_TB_TEMPLATE_EDITOR_ENABLED = true
 DEBUG_TB_PANELS = [
     "flask_debugtoolbar.panels.versions.VersionDebugPanel",

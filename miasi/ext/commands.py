@@ -2,7 +2,7 @@ import click
 
 from miasi.ext.auth import create_user
 from miasi.ext.database import db
-from miasi.models import Product, Systems, Forms, Equations, EquationFields, Knowledge
+from miasi.models import System, Form, Equation, Knowledge, SystemForm
 
 
 def create_db():
@@ -17,67 +17,81 @@ def drop_db():
 
 def populate_db():
     """Populate db with sample data"""
-    # Sample data for Product table
-    products = [
-        Product(id=1, name="Ciabatta", price="10", description="Italian Bread"),
-        Product(id=2, name="Baguete", price="15", description="French Bread"),
-        Product(id=3, name="Pretzel", price="20", description="German Bread"),
-    ]
 
-    # Sample data for Systems table
     systems = [
-        Systems(id=1, name="BMI_Calculator", name_human_readable="Kalkulator BMI", description="System, który umożliwi Ci sprawdzenie swojego BMI"),
+        System(name="BMI_Calculator", name_human_readable="Kalkulator BMI",
+               description="System, który umożliwi Ci sprawdzenie swojego BMI"),
+        System(name="BMR_Calculator", name_human_readable="Kalkulator BMR",
+               description="Kalkulator, który pozwoli Ci obliczyć zapotrzebowanie kaloryczne (BMR)")
     ]
 
-    # Sample data for Forms table
     forms = [
-        Forms(id=1, id_systems=1, name="height", name_human_readable="Wzrost", input_type="number", description="Wzrost w metrach", order=1, validation_rule="^[0-9]+(\.[0-9]+)?$"),
-        Forms(id=2, id_systems=1, name="weight", name_human_readable="Waga", input_type="number", description="Waga w kilogramach", order=2, validation_rule="^[0-9]+(\.[0-9]+)?$")
+        Form(name="height", name_human_readable="Wzrost", input_type="number",
+             description="Wzrost w metrach"),
+        Form(name="weight", name_human_readable="Waga", input_type="number",
+             description="Waga w kilogramach"),
+        Form(name="age", name_human_readable="Wiek", input_type="number",
+             description="Wiek w pełnych latach"),
+        Form(name="sex", name_human_readable="Płeć", input_type="sex",
+             description="Wybierz swoją płeć")
     ]
 
-    # Sample data for Equations table
     equations = [
-        Equations(id=1, id_systems=1, name="BMI", name_human_readable="Body Mass Index", formula="weight / (height ** 2)", description="Obliczanie BMI")
+        Equation(id_system=1, name="BMI", name_human_readable="Body Mass Index",
+                 formula="weight / (height ** 2)"),
+        Equation(id_system=2, name="BMR_Male", name_human_readable="Basal Metabolic Rate - Male",
+                 formula="66 + (13.7 * weight) + (500 * height) - (5.8 * age)", sex=1),
+        Equation(id_system=2, name="BMR_Female", name_human_readable="Basal Metabolic Rate - Female",
+                 formula="655 + (9.6 * weight) + (180 * height) - (4.7 * age)", sex=0)
     ]
 
-    # Sample data for EquationFields table
-    equation_fields = [
-        EquationFields(id=1, id_equations=1, id_forms=1, variable_name="height", description="Wzrost w metrach"),
-        EquationFields(id=2, id_equations=1, id_forms=2, variable_name="weight", description="Waga w kilogramach")
-    ]
-
-    # Sample data for Knowledge table
     knowledge = [
-        Knowledge(id=1, id_systems=1, id_equations=1, condition="value < 18.5", advice="Twoja waga jest zbyt niska. Rozważ konsultację z dietetykiem."),
-        Knowledge(id=2, id_systems=1, id_equations=1, condition="value >= 18.5 and value < 25", advice="Twoja waga jest w normie. Utrzymuj zdrowy styl życia!"),
-        Knowledge(id=3, id_systems=1, id_equations=1, condition="value >= 25 and value < 30", advice="Masz nadwagę. Rozważ zwiększenie aktywności fizycznej i konsultację z dietetykiem."),
-        Knowledge(id=4, id_systems=1, id_equations=1, condition="value >= 30", advice="Masz otyłość. Skonsultuj się z lekarzem i dietetykiem."),
+        Knowledge(id_system=1, condition="value < 18.5",
+                  advice="Twoja waga jest zbyt niska. Rozważ konsultację z dietetykiem."),
+        Knowledge(id_system=1, condition="value >= 18.5 and value < 25",
+                  advice="Twoja waga jest w normie. Utrzymuj zdrowy styl życia!"),
+        Knowledge(id_system=1, condition="value >= 25 and value < 30",
+                  advice="Masz nadwagę. Rozważ zwiększenie aktywności fizycznej i konsultację z dietetykiem."),
+        Knowledge(id_system=1, condition="value >= 30",
+                  advice="Masz otyłość. Skonsultuj się z lekarzem i dietetykiem.")
     ]
 
-    # Add all sample data to the session
-    db.session.bulk_save_objects(products)
+    system_forms = [
+        SystemForm(id_system=1, id_form=1),
+        SystemForm(id_system=1, id_form=2),
+        SystemForm(id_system=2, id_form=2),
+        SystemForm(system=systems[1], form=forms[2]),
+        SystemForm(system=systems[1], form=forms[3]),
+    ]
+
     db.session.bulk_save_objects(systems)
     db.session.bulk_save_objects(forms)
     db.session.bulk_save_objects(equations)
-    db.session.bulk_save_objects(equation_fields)
     db.session.bulk_save_objects(knowledge)
+    db.session.bulk_save_objects(system_forms)
 
-    # Commit the session
     db.session.commit()
 
     return {
-        "products": Product.query.all(),
-        "systems": Systems.query.all(),
-        "forms": Forms.query.all(),
-        "equations": Equations.query.all(),
-        "equation_fields": EquationFields.query.all(),
-        "knowledge": Knowledge.query.all()
+        "systems": System.query.all(),
+        "forms": Form.query.all(),
+        "equations": Equation.query.all(),
+        "knowledge": Knowledge.query.all(),
+        "system_forms": SystemForm.query.all()
     }
+
+
+def reset_db():
+    """Resets database"""
+    drop_db()
+    create_db()
+    populate_db()
+    create_user("admin", "1234")
 
 
 def init_app(app):
     # add multiple commands in a bulk
-    for command in [create_db, drop_db, populate_db]:
+    for command in [create_db, drop_db, populate_db, reset_db]:
         app.cli.add_command(app.cli.command()(command))
 
     # add a single command

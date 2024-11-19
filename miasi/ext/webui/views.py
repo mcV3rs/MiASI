@@ -1,29 +1,35 @@
 from flask import abort, render_template
 from flask_simplelogin import login_required
 
-from miasi.models import Systems, Product
+from miasi.models import System
 
 
 def index():
-    systems = Systems.query.all()
+    systems = System.query.all()
+
     return render_template("index.html", systems=systems)
+
 
 def system(system_id):
     # Pobranie z bazy danych systemu o podanym identyfikatorze
-    system = Systems.query.filter_by(id=system_id).first() or abort(
-        404, "Brak systemu"
-    )
+    system = System.query.filter_by(id=system_id).first() or abort(404, "Brak systemu")
 
     # Pobranie z bazy danych formularzy przypisanych do systemu
-    forms = system.forms
+    forms = [sf.form for sf in system.system_forms]
+
+    # Sprawdzenie, czy którykolwiek z pól formularza jest typu select
+    for form in forms:
+        if form.input_type == "select":
+            form.select_options = form.select_options.split(",")
+            form.select_values = form.select_values.split(',')
+
+            form.combined = dict()
+            for i, option in enumerate(form.select_options):
+                form.combined[option] = form.select_values[i]
+
+            print(form.combined)
 
     return render_template("system.html", system=system, forms=forms)
-
-def product(product_id):
-    product = Product.query.filter_by(id=product_id).first() or abort(
-        404, "Brak produktu"
-    )
-    return render_template("product.html", product=product)
 
 
 @login_required

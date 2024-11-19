@@ -3,7 +3,7 @@ from flask import Flask
 
 
 def create_app(**config):
-    app = Flask(__name__)
+    app = Flask(__name__, static_url_path='/static')
     FlaskDynaconf(app)  # config managed by Dynaconf
     app.config.load_extensions(
         "EXTENSIONS"
