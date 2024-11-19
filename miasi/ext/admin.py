@@ -27,6 +27,13 @@ class ProtectedModelView(ModelView):
     def _handle_view(self, name, **kwargs):
         return super()._handle_view(name, **kwargs)
 
+
+class CustomAdminIndexView(AdminIndexView):
+    def is_visible(self):
+        # Ukrywa link do strony głównej w navbarze
+        return False
+
+
 class DownloadDatabaseView(BaseView):
     @expose('/')
     @login_required
@@ -35,8 +42,6 @@ class DownloadDatabaseView(BaseView):
         # Ścieżka do pliku bazy danych
         db_filename = current_app.config.get('SQLALCHEMY_DATABASE_URI').replace('sqlite:///', '')
         db_path = os.path.join(current_app.instance_path, db_filename)
-
-        print(f"Database Path: {db_path}")
 
         # Sprawdź, czy plik istnieje
         if not os.path.exists(db_path):
@@ -94,6 +99,13 @@ class FormAdmin(ModelView):
     column_list = ("name", "name_human_readable", "description")
     form_columns = ("name", "name_human_readable", "input_type", "description", "select_options", "select_values")
 
+    # Mapowanie nazw kolumn
+    column_labels = {
+        'name': 'Code Name',
+        'name_human_readable': 'Name (Human Readable)',
+        'description': 'Description',
+    }
+
     def __init__(self, model, session, **kwargs):
         super().__init__(model, session, **kwargs)
         self.extra_js = ["/static/js/admin_dynamic_fields.js"]  # Dodanie własnego JS
@@ -102,10 +114,9 @@ class FormAdmin(ModelView):
         "input_type": SelectField(
             "Input Type",
             choices=[
-                ("text", "Text"),
                 ("number", "Number"),
                 ("sex", "Sex"),
-                ("select", "Select")  # Nowy typ pola
+                ("select", "Select")
             ],
             render_kw={"id": "input_type"}  # ID dla JavaScript
         ),
@@ -145,6 +156,13 @@ class SystemAdmin(ModelView):
     column_list = ("name", "name_human_readable", "description")
     form_columns = ("name", "name_human_readable", "description", "forms")
     form_changed = False
+
+    # Mapowanie nazw kolumn
+    column_labels = {
+        'name': 'Code Name',
+        'name_human_readable': 'Name (Human Readable)',
+        'description': 'Description',
+    }
 
     form_extra_fields = {
         "forms": QuerySelectMultipleField(
@@ -200,7 +218,7 @@ class EquationAdmin(sqla.ModelView):
 
     form_extra_fields = {
         'system': QuerySelectField(
-            label='System',
+            label='System Name',
             query_factory=lambda: db.session.query(System),
             get_label='name_human_readable',
             allow_blank=False
@@ -208,9 +226,9 @@ class EquationAdmin(sqla.ModelView):
         'sex': SelectField(
             label='Sex',
             choices=[
-                (None, 'Nie zależy od płci'),
-                (1, 'Mężczyźni'),
-                (0, 'Kobiety')
+                (None, 'Both'),
+                (1, 'Male'),
+                (0, 'Female')
             ]
         )
     }
@@ -229,11 +247,9 @@ class KnowledgeAdmin(sqla.ModelView):
     # Kolumny wyświetlane w panelu
     column_list = ['condition', 'advice', 'system.name_human_readable']
 
-    # Mapowanie nazw kolumn na bardziej przyjazne
+    # Mapowanie nazw kolumn
     column_labels = {
-        'condition': 'Warunek',
-        'advice': 'Porada',
-        'system.name_human_readable': 'Nazwa systemu'
+        'system.name_human_readable': 'System Name'
     }
 
     # Kolumny, po których można sortować
@@ -264,16 +280,23 @@ class KnowledgeAdmin(sqla.ModelView):
 admin = Admin(index_view=ProtectedAdminIndexView())
 
 def init_app(app):
-    admin.name = app.config.TITLE
-    admin.template_mode = app.config.FLASK_ADMIN_TEMPLATE_MODE
-    admin.init_app(app)
+    # Tworzymy niestandardowy widok dla strony głównej admina
+    admin_index_view = CustomAdminIndexView(name=None)
 
-    # Widoki do edycji bazy danych
-    admin.add_view(FormAdmin(Form, db.session, name="Pola Formularza"))
-    admin.add_view(SystemAdmin(System, db.session, name="Systemy"))
-    admin.add_view(EquationAdmin(Equation, db.session, name="Równania"))
-    admin.add_view(KnowledgeAdmin(Knowledge, db.session, name="Baza wiedzy"))
+    # Inicjalizujemy instancję Admin z niestandardowym widokiem
+    admin = Admin(
+        app,
+        name=app.config.TITLE,
+        index_view=admin_index_view,
+        template_mode=app.config.FLASK_ADMIN_TEMPLATE_MODE
+    )
 
-    # Dodatkowe widoki
-    admin.add_view(DownloadDatabaseView(name="Eksport", endpoint="download-database"))
+    # Dodajemy widoki do edycji bazy danych
+    admin.add_view(FormAdmin(Form, db.session, name="Form Inputs"))
+    admin.add_view(SystemAdmin(System, db.session, name="Systems"))
+    admin.add_view(EquationAdmin(Equation, db.session, name="Equations"))
+    admin.add_view(KnowledgeAdmin(Knowledge, db.session, name="Knowledge Base"))
+
+    # Dodajemy dodatkowe widoki
+    admin.add_view(DownloadDatabaseView(name="Export", endpoint="download-database"))
     admin.add_view(ImportDatabaseView(name="Import", endpoint="import-database"))

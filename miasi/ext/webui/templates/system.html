@@ -10,21 +10,25 @@
             <form id="systemForm" method="post">
                 {% for form in forms %}
                     <div class="form-group">
-                        <label for="{{ form.name }}">{{ form.name_human_readable }}</label>
+                        <label for="{{ form.name }}">
+                            {{ form.name_human_readable }}
+                            <span style="color: red;">*</span>
+                        </label>
                         {% if form.input_type == 'text' %}
                             <input type="text" class="form-control" id="{{ form.name }}" name="{{ form.name }}"
-                                   placeholder="{{ form.description }}">
+                                   placeholder="{{ form.description }}" required>
                         {% elif form.input_type == 'number' %}
                             <input type="number" class="form-control" id="{{ form.name }}" name="{{ form.name }}"
-                                   placeholder="{{ form.description }}" step="any">
+                                   placeholder="{{ form.description }}" step="any" min="0" required>
                         {% elif form.input_type == 'sex' %}
-                            <select class="form-control" id="{{ form.name }}" name="{{ form.name }}">
+                            <select class="form-control" id="{{ form.name }}" name="{{ form.name }}" required>
+                                <!-- Pole oznaczone jako wymagane -->
                                 <option value="" disabled selected>{{ form.description }}</option>
                                 <option value="1">Mężczyzna</option>
                                 <option value="0">Kobieta</option>
                             </select>
                         {% elif form.input_type == 'select' %}
-                            <select class="form-control" id="{{ form.name }}" name="{{ form.name }}">
+                            <select class="form-control" id="{{ form.name }}" name="{{ form.name }}" required>
                                 <option value="" disabled selected>{{ form.description }}</option>
                                 {% for option in form.select_options %}
                                     <option value="{{ option }}">{{ option }}</option>
@@ -32,6 +36,7 @@
                             </select>
                         {% endif %}
                     </div>
+
                 {% endfor %}
                 <button type="submit" class="btn btn-primary">Prześlij</button>
             </form>
