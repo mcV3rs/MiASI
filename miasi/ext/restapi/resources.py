@@ -1,6 +1,8 @@
 from flask import abort, jsonify, request
 from flask_restful import Resource
+
 from miasi.models import System, Equation, Knowledge
+
 
 class FormsSubmissionResource(Resource):
     def get(self, system_id):
@@ -68,7 +70,6 @@ class FormsSubmissionResource(Resource):
 
         # Obliczenia
         results = []
-        computed_results = {}
         for equation in filtered_equations:
             variables = processed_data
             try:

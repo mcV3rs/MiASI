@@ -2,9 +2,9 @@ import os
 
 from flask import current_app, send_file, request, flash, redirect, url_for
 from flask_admin import Admin
+from flask_admin.base import AdminIndexView, BaseView, expose
 from flask_admin.contrib import sqla
 from flask_admin.contrib.sqla import ModelView
-from flask_admin.base import AdminIndexView, BaseView, expose
 from flask_admin.form import Select2Widget
 from flask_simplelogin import login_required
 from werkzeug.utils import secure_filename
@@ -21,6 +21,7 @@ class ProtectedAdminIndexView(AdminIndexView):
     @login_required
     def _handle_view(self, name, **kwargs):
         return super()._handle_view(name, **kwargs)
+
 
 class ProtectedModelView(ModelView):
     @login_required
@@ -54,6 +55,7 @@ class DownloadDatabaseView(BaseView):
             download_name="database.db",
             mimetype="application/octet-stream"
         )
+
 
 class ImportDatabaseView(BaseView):
     @expose('/', methods=['GET', 'POST'])
@@ -90,6 +92,7 @@ class ImportDatabaseView(BaseView):
 
         # Formularz przesyłania pliku
         return self.render('admin/import_database.html')
+
 
 # Specjalne widoki
 class FormAdmin(ModelView):
@@ -184,7 +187,6 @@ class SystemAdmin(ModelView):
             }
         }
 
-
     def on_model_change(self, form, model, is_created):
         """Update the system-form relationship."""
         print("Form Data:", form.forms.data)  # Debugging line
@@ -278,6 +280,7 @@ class KnowledgeAdmin(sqla.ModelView):
 
 
 admin = Admin(index_view=ProtectedAdminIndexView())
+
 
 def init_app(app):
     # Tworzymy niestandardowy widok dla strony głównej admina

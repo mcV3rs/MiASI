@@ -15,12 +15,6 @@ def app():
         db.drop_all(app=app)
 
 
-@pytest.fixture(scope="session")
-def products(app):
-    with app.app_context():
-        return populate_db()
-
-
 # each test runs on cwd to its temp dir
 @pytest.fixture(autouse=True)
 def go_to_tmpdir(request):
