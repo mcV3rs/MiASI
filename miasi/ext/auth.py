@@ -14,7 +14,7 @@ def verify_login(user):
     existing_user = User.query.filter_by(username=username).first()
     if not existing_user:
         return False
-    if check_password_hash(existing_user.password, password):
+    if check_password_hash(existing_user.password_hash, password):
         return True
     return False
 
