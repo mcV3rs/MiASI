@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from flask import current_app, send_file, request, flash, redirect, url_for
 from flask_admin import Admin
@@ -48,13 +49,18 @@ class DownloadDatabaseView(BaseView):
         if not os.path.exists(db_path):
             return "Database file not found.", 404
 
+        # Generowanie nazwy pliku do pobrania
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        download_name = f"database_{timestamp}.db"
+
         # Pobierz plik bazy danych
         return send_file(
             db_path,
             as_attachment=True,
-            download_name="database.db",
+            download_name=download_name,
             mimetype="application/octet-stream"
         )
+
 
 
 class ImportDatabaseView(BaseView):
@@ -76,15 +82,27 @@ class ImportDatabaseView(BaseView):
 
             # Sprawdzenie poprawności pliku
             if file and file.filename.endswith('.db'):
-                filename = secure_filename(file.filename)
-                db_path = os.path.join(current_app.instance_path, filename)
+                # Pobranie nazwy pliku docelowego z konfiguracji aplikacji
+                db_uri = current_app.config.get('SQLALCHEMY_DATABASE_URI', '')
+                if not db_uri.startswith('sqlite:///'):
+                    flash("Only SQLite databases are supported for import.", "error")
+                    return redirect(request.url)
 
-                # Zapisanie pliku do folderu instance
-                file.save(db_path)
-                flash("Database imported successfully.", "success")
+                # Wyodrębnienie ścieżki i nazwy pliku bazy danych
+                db_filename = db_uri.replace('sqlite:///', '')
+                db_path = os.path.join(current_app.instance_path, os.path.basename(db_filename))
 
-                # Przeładowanie aplikacji
-                os.utime(db_path, None)  # Dotknięcie pliku, aby Flask zauważył zmianę
+                # Zapisanie przesłanego pliku jako docelowej bazy danych
+                try:
+                    file.save(db_path)
+                    flash(f"Database imported successfully and renamed to {os.path.basename(db_path)}.", "success")
+
+                    # Przeładowanie aplikacji (dotknięcie pliku)
+                    os.utime(db_path, None)
+                except Exception as e:
+                    flash(f"Error saving database file: {str(e)}", "error")
+                    return redirect(request.url)
+
                 return redirect(url_for('admin.index'))
 
             flash("Invalid file format. Please upload a .db file.", "error")
