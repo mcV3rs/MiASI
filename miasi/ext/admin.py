@@ -39,7 +39,8 @@ class DownloadDatabaseView(BaseView):
     @expose('/')
     @login_required
     def index(self):
-        """Send the database file for download."""
+        """Przetwarzanie żądania pobrania bazy danych."""
+
         # Ścieżka do pliku bazy danych
         db_filename = current_app.config.get('SQLALCHEMY_DATABASE_URI').replace('sqlite:///', '')
         db_path = os.path.join(current_app.instance_path, db_filename)
@@ -65,6 +66,8 @@ class ImportDatabaseView(BaseView):
     @expose('/', methods=['GET', 'POST'])
     @login_required
     def index(self):
+        """Przetwarzanie żądania importu bazy danych."""
+
         if request.method == 'POST':
             # Sprawdzenie, czy w żądaniu znajduje się plik
             if 'file' not in request.files:
@@ -112,9 +115,7 @@ class ImportDatabaseView(BaseView):
 
 # Specjalne widoki
 class FormAdmin(ModelView):
-    """
-    Panel administracyjny dla tabeli Form.
-    """
+    """Panel administracyjny dla tabeli Form."""
     column_list = ("name", "name_human_readable", "description")
     form_columns = ("name", "name_human_readable", "input_type", "description", "select_options", "select_values")
 
@@ -171,7 +172,7 @@ class FormAdmin(ModelView):
 
 
 class SystemAdmin(ModelView):
-    """Admin panel for the System table."""
+    """Panel administracyjny dla tabeli System."""
     column_list = ("name", "name_human_readable", "description")
     form_columns = ("name", "name_human_readable", "description", "forms", "system_type")
     form_changed = False
@@ -212,33 +213,24 @@ class SystemAdmin(ModelView):
         }
 
     def on_model_change(self, form, model, is_created):
-        """Update the system-form relationship."""
-        print("Form Data:", form.forms.data)  # Debugging line
-
         if 'forms' in form.data:
-            # Wyczyszczenie istniejących powiązań
             model.system_forms = []
-            db.session.flush()  # Upewnij się, że zmiany są zapisane w bazie
+            db.session.flush()
 
-            # Dodanie nowych formularzy
             for form_obj in form.forms.data:
-                print(f"Form Object: {form_obj}")  # Debugging line to check the form object
                 system_form = SystemForm(system=model, form=form_obj)
                 model.system_forms.append(system_form)
 
         super().on_model_change(form, model, is_created)
 
     def on_form_prefill(self, form, id):
-        """Pre-fill the form with the data from the database."""
-        # Pobierz obiekt systemu
         system = System.query.get(id)
         if system:
-            # Pobierz przypisane formularze do systemu
             form.forms.data = [system_form.form for system_form in system.system_forms]
-        print(f"Form Data in Prefill: {form.forms.data}")
 
 
 class EquationAdmin(sqla.ModelView):
+    """Panel administracyjny dla tabeli Equation."""
     column_list = ("name_human_readable", 'formula', "sex")
     form_columns = ['name', 'name_human_readable', 'formula', 'system', 'sex']
 
@@ -270,18 +262,15 @@ class EquationAdmin(sqla.ModelView):
 
 
 class KnowledgeAdmin(sqla.ModelView):
-    # Kolumny wyświetlane w panelu
-    column_list = ['condition', 'advice', 'system.name_human_readable']
+    """Panel administracyjny dla tabeli Knowledge."""
 
-    # Mapowanie nazw kolumn
+    column_list = ['condition', 'advice', 'system.name_human_readable']
     column_labels = {
         'system.name_human_readable': 'System Name'
     }
 
-    # Kolumny, po których można sortować
     column_sortable_list = ['condition', 'advice', ('system.name_human_readable', 'system.name_human_readable')]
 
-    # Kolumny dostępne w formularzu
     form_columns = ['condition', 'advice', 'system']
 
     form_extra_fields = {
@@ -302,15 +291,14 @@ class KnowledgeAdmin(sqla.ModelView):
             }
         }
 
-
+# Deklaracja instancji Admin
 admin = Admin(index_view=ProtectedAdminIndexView())
 
 
 def init_app(app):
-    # Tworzymy niestandardowy widok dla strony głównej admina
+    # Stworzenie niestandardowej instancji AdminIndexView
     admin_index_view = CustomAdminIndexView(name=None)
 
-    # Inicjalizujemy instancję Admin z niestandardowym widokiem
     admin = Admin(
         app,
         name=app.config.TITLE,

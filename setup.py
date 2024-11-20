@@ -1,11 +1,10 @@
-"""Python setup.py for miasi package"""
 import io
 import os
 from setuptools import find_packages, setup
 
 
 def read(*paths, **kwargs):
-    """Read the contents of a text file safely.
+    """Przeczytaj i zwróć zawartość pliku tekstowego
     >>> read("miasi", "VERSION")
     '0.1.0'
     >>> read("README.md")
@@ -32,11 +31,11 @@ def read_requirements(path):
 setup(
     name="miasi",
     version=read("miasi", "VERSION"),
-    description="Projekt stworzony na potrzeby przedmiotu Modelowanie i Analiza Systemów Informatycznych",
+    description="Aplikacja demonstrująca działanie systemu eksperckiego udzielającego rad dotyczących zdrowego trybu życia",
     url="https://github.com/mcV3rs/MiASI/",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
-    author="Jakub Gurgul, Adam Paxdzierz",
+    author="Jakub Gurgul, Adam Paździerz",
     packages=find_packages(exclude=["tests", ".github"]),
     install_requires=read_requirements("requirements.txt"),
     entry_points={

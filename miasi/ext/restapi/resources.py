@@ -5,12 +5,17 @@ from miasi.models import System, Equation, Knowledge
 
 
 def get_system(system_id):
-    """Pobranie systemu z bazy danych."""
+    """
+    Pobranie systemu z bazy danych.
+    :param system_id: ID systemu
+    """
     return System.query.filter_by(id=system_id).first() or abort(404, "System not found")
 
 
 def get_request_data():
-    """Pobranie danych z żądania."""
+    """
+    Pobranie danych z żądania.
+    """
     try:
         data = request.get_json()
         if not data:
@@ -21,7 +26,10 @@ def get_request_data():
 
 
 def get_required_fields(system):
-    """Pobranie wymaganych pól formularza powiązanych z systemem."""
+    """
+    Pobranie wymaganych pól formularza powiązanych z systemem.
+    :param system: System
+    """
     try:
         required_forms = [sf.form for sf in system.system_forms]
         return required_forms, [form.name for form in required_forms]
@@ -30,14 +38,22 @@ def get_required_fields(system):
 
 
 def validate_data(data, required_fields):
-    """Walidacja danych żądania."""
+    """
+    Walidacja danych żądania.
+    :param data: Dane wejściowe
+    :param required_fields: Wymagane pola
+    """
     missing_fields = [field for field in required_fields if field not in data]
     if missing_fields:
         abort(400, f"Missing required fields: {', '.join(missing_fields)}")
 
 
 def process_data(data, required_forms):
-    """Przetwarzanie danych wejściowych na podstawie wymagań formularza."""
+    """
+    Przetwarzanie danych wejściowych na podstawie wymagań formularza.
+    :param data: Dane wejściowe
+    :param required_forms: Wymagane formularze
+    """
     processed_data = {}
     try:
         for form in required_forms:
@@ -58,7 +74,11 @@ def process_data(data, required_forms):
 
 
 def get_equations(system, user_sex):
-    """Pobranie równań powiązanych z systemem, uwzględniając płeć."""
+    """
+    Pobranie równań powiązanych z systemem, uwzględniając płeć.
+    :param system: System
+    :param user_sex: Płeć użytkownika
+    """
     equations = Equation.query.filter_by(id_system=system.id).all()
     if not equations:
         abort(404, "No equations found for this system")
@@ -70,7 +90,11 @@ def get_equations(system, user_sex):
 
 
 def calculate_results(filtered_equations, processed_data):
-    """Obliczanie wyników na podstawie równań."""
+    """
+    Obliczanie wyników na podstawie równań.
+    :param filtered_equations: Przefiltrowane równania
+    :param processed_data: Przetworzone dane
+    """
     results = []
     for equation in filtered_equations:
         try:
@@ -86,7 +110,11 @@ def calculate_results(filtered_equations, processed_data):
 
 
 def evaluate_knowledge(system, processed_data):
-    """Ocena wiedzy na podstawie wyników i warunków."""
+    """
+    Ocena wiedzy na podstawie wyników i warunków.
+    :param system: System
+    :param processed_data: Przetworzone dane
+    """
     knowledge_entries = Knowledge.query.filter_by(id_system=system.id).all()
     if not knowledge_entries:
         return None
@@ -107,8 +135,6 @@ def evaluate_knowledge(system, processed_data):
 
             if met_conditions > 0:  # Jeśli przynajmniej jeden warunek jest spełniony
                 matching_advices.append(entry.advice)
-
-        print(matching_advices)
 
         # Jeśli znaleziono pasujące porady, zwróć je wszystkie
         if matching_advices:
@@ -136,12 +162,21 @@ def evaluate_knowledge(system, processed_data):
 
 
 class FormsSubmissionResource(Resource):
+    """Obsługuje przesyłanie formularzy i obliczanie wyników."""
     def get(self, system_id):
+        """
+        Pobranie formularzy powiązanych z systemem.
+        :param system_id: ID systemu
+        """
         system = System.query.filter_by(id=system_id).first() or abort(404, "System not found")
         forms = system.forms or abort(204, "No forms found for this system")
         return jsonify({"forms": [form.to_dict() for form in forms]})
 
     def post(self, system_id):
+        """
+        Przesłanie formularza i obliczenie wyników.
+        :param system_id: ID system
+        """
         system = get_system(system_id)
         data = get_request_data()
         required_forms, required_fields = get_required_fields(system)

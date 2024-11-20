@@ -19,7 +19,7 @@ EXTENSIONS = [
 [development]
 EXTENSIONS = [
     "flask_debugtoolbar:DebugToolbarExtension",
-    "dynaconf_merge_unique"  # to reuse extensions list from [default]
+    "dynaconf_merge_unique"  # W celu ponownego wczytania konfiguracji
 ]
 SQLALCHEMY_RECORD_QUERIES = true
 TEMPLATES_AUTO_RELOAD = true
