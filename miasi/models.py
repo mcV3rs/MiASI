@@ -44,11 +44,12 @@ class System(db.Model, SerializerMixin):
     name = db.Column(db.String(140))  # Nazwa systemu używana w kodzie
     name_human_readable = db.Column(db.String(512))  # Nazwa systemu używana w interfejsie użytkownika
     description = db.Column(db.Text)  # Opis systemu
+    system_type = db.Column(db.Boolean, nullable=False)  # False — system pojedyńczy, True — system wielo-poleceniowy
 
     system_forms = db.relationship('SystemForm', back_populates='system',
                                    cascade='all, delete-orphan')  # Relacja wiele-do-wielu
 
-    def __init__(self, name: str, name_human_readable: str, description: str):
+    def __init__(self, name: str, name_human_readable: str, description: str, system_type: bool = False):
         """
         Konstruktor klasy System
         :param name: Nazwa systemu używana w kodzie
@@ -58,6 +59,7 @@ class System(db.Model, SerializerMixin):
         self.name = name
         self.name_human_readable = name_human_readable
         self.description = description
+        self.system_type = system_type
 
 
 class Form(db.Model, SerializerMixin):
