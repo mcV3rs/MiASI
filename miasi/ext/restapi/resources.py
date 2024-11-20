@@ -135,7 +135,6 @@ def evaluate_knowledge(system, processed_data):
     return best_advice
 
 
-
 class FormsSubmissionResource(Resource):
     def get(self, system_id):
         system = System.query.filter_by(id=system_id).first() or abort(404, "System not found")

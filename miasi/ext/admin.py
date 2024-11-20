@@ -61,7 +61,6 @@ class DownloadDatabaseView(BaseView):
         )
 
 
-
 class ImportDatabaseView(BaseView):
     @expose('/', methods=['GET', 'POST'])
     @login_required
