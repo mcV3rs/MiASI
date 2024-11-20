@@ -6,17 +6,19 @@ from miasi.models import System, Form, Equation, Knowledge, SystemForm
 
 
 def create_db():
-    """Creates database"""
+    """Komenda tworząca bazę danych"""
     db.create_all()
+    print("Database created")
 
 
 def drop_db():
-    """Cleans database"""
+    """Komenda usuwająca bazę danych"""
     db.drop_all()
+    print("Database dropped")
 
 
-def populate_db():
-    """Populate db with sample data"""
+def populate_db(message=False):
+    """Komenda wypełniająca bazę danych przykładowymi danymi"""
 
     systems = [
         System(name="BMI_Calculator", name_human_readable="Kalkulator BMI",
@@ -72,6 +74,9 @@ def populate_db():
 
     db.session.commit()
 
+    if message:
+        print("Database populated")
+
     return {
         "systems": System.query.all(),
         "forms": Form.query.all(),
@@ -82,15 +87,16 @@ def populate_db():
 
 
 def reset_db():
-    """Resets database"""
-    drop_db()
-    create_db()
-    populate_db()
+    """Komenda resetująca bazę danych"""
+    db.drop_all()
+    db.create_all()
+    populate_db(message=False)
     create_user("admin", "1234")
+    print("Database reset and ready to use")
 
 
 def init_app(app):
-    # add multiple commands in a bulk
+    """Inicjalizacja komend dla aplikacji"""
     for command in [create_db, drop_db, populate_db, reset_db]:
         app.cli.add_command(app.cli.command()(command))
 
@@ -99,5 +105,5 @@ def init_app(app):
     @click.option("--username", "-u")
     @click.option("--password", "-p")
     def add_user(username, password):
-        """Adds a new user to the database"""
+        """Komenda dodająca użytkownika"""
         return create_user(username, password)

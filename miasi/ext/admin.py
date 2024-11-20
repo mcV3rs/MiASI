@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 from flask import current_app, send_file, request, flash, redirect, url_for
 from flask_admin import Admin
@@ -7,7 +8,6 @@ from flask_admin.contrib import sqla
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.form import Select2Widget
 from flask_simplelogin import login_required
-from werkzeug.utils import secure_filename
 from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import StringField
 from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
@@ -39,7 +39,8 @@ class DownloadDatabaseView(BaseView):
     @expose('/')
     @login_required
     def index(self):
-        """Send the database file for download."""
+        """Przetwarzanie żądania pobrania bazy danych."""
+
         # Ścieżka do pliku bazy danych
         db_filename = current_app.config.get('SQLALCHEMY_DATABASE_URI').replace('sqlite:///', '')
         db_path = os.path.join(current_app.instance_path, db_filename)
@@ -48,11 +49,15 @@ class DownloadDatabaseView(BaseView):
         if not os.path.exists(db_path):
             return "Database file not found.", 404
 
+        # Generowanie nazwy pliku do pobrania
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        download_name = f"database_{timestamp}.db"
+
         # Pobierz plik bazy danych
         return send_file(
             db_path,
             as_attachment=True,
-            download_name="database.db",
+            download_name=download_name,
             mimetype="application/octet-stream"
         )
 
@@ -61,6 +66,8 @@ class ImportDatabaseView(BaseView):
     @expose('/', methods=['GET', 'POST'])
     @login_required
     def index(self):
+        """Przetwarzanie żądania importu bazy danych."""
+
         if request.method == 'POST':
             # Sprawdzenie, czy w żądaniu znajduje się plik
             if 'file' not in request.files:
@@ -76,15 +83,27 @@ class ImportDatabaseView(BaseView):
 
             # Sprawdzenie poprawności pliku
             if file and file.filename.endswith('.db'):
-                filename = secure_filename(file.filename)
-                db_path = os.path.join(current_app.instance_path, filename)
+                # Pobranie nazwy pliku docelowego z konfiguracji aplikacji
+                db_uri = current_app.config.get('SQLALCHEMY_DATABASE_URI', '')
+                if not db_uri.startswith('sqlite:///'):
+                    flash("Only SQLite databases are supported for import.", "error")
+                    return redirect(request.url)
 
-                # Zapisanie pliku do folderu instance
-                file.save(db_path)
-                flash("Database imported successfully.", "success")
+                # Wyodrębnienie ścieżki i nazwy pliku bazy danych
+                db_filename = db_uri.replace('sqlite:///', '')
+                db_path = os.path.join(current_app.instance_path, os.path.basename(db_filename))
 
-                # Przeładowanie aplikacji
-                os.utime(db_path, None)  # Dotknięcie pliku, aby Flask zauważył zmianę
+                # Zapisanie przesłanego pliku jako docelowej bazy danych
+                try:
+                    file.save(db_path)
+                    flash(f"Database imported successfully and renamed to {os.path.basename(db_path)}.", "success")
+
+                    # Przeładowanie aplikacji (dotknięcie pliku)
+                    os.utime(db_path, None)
+                except Exception as e:
+                    flash(f"Error saving database file: {str(e)}", "error")
+                    return redirect(request.url)
+
                 return redirect(url_for('admin.index'))
 
             flash("Invalid file format. Please upload a .db file.", "error")
@@ -96,9 +115,7 @@ class ImportDatabaseView(BaseView):
 
 # Specjalne widoki
 class FormAdmin(ModelView):
-    """
-    Panel administracyjny dla tabeli Form.
-    """
+    """Panel administracyjny dla tabeli Form."""
     column_list = ("name", "name_human_readable", "description")
     form_columns = ("name", "name_human_readable", "input_type", "description", "select_options", "select_values")
 
@@ -155,9 +172,9 @@ class FormAdmin(ModelView):
 
 
 class SystemAdmin(ModelView):
-    """Admin panel for the System table."""
+    """Panel administracyjny dla tabeli System."""
     column_list = ("name", "name_human_readable", "description")
-    form_columns = ("name", "name_human_readable", "description", "forms")
+    form_columns = ("name", "name_human_readable", "description", "forms", "system_type")
     form_changed = False
 
     # Mapowanie nazw kolumn
@@ -165,6 +182,14 @@ class SystemAdmin(ModelView):
         'name': 'Code Name',
         'name_human_readable': 'Name (Human Readable)',
         'description': 'Description',
+    }
+
+    # Konfiguracja pól formularza
+    form_args = {
+        'system_type': {
+            'label': 'Multi-advice system',  # Ustawienie etykiety
+            'description': 'Check, if the system is a multi-advice system'  # Ustawienie opisu
+        }
     }
 
     form_extra_fields = {
@@ -188,33 +213,24 @@ class SystemAdmin(ModelView):
         }
 
     def on_model_change(self, form, model, is_created):
-        """Update the system-form relationship."""
-        print("Form Data:", form.forms.data)  # Debugging line
-
         if 'forms' in form.data:
-            # Wyczyszczenie istniejących powiązań
             model.system_forms = []
-            db.session.flush()  # Upewnij się, że zmiany są zapisane w bazie
+            db.session.flush()
 
-            # Dodanie nowych formularzy
             for form_obj in form.forms.data:
-                print(f"Form Object: {form_obj}")  # Debugging line to check the form object
                 system_form = SystemForm(system=model, form=form_obj)
                 model.system_forms.append(system_form)
 
         super().on_model_change(form, model, is_created)
 
     def on_form_prefill(self, form, id):
-        """Pre-fill the form with the data from the database."""
-        # Pobierz obiekt systemu
         system = System.query.get(id)
         if system:
-            # Pobierz przypisane formularze do systemu
             form.forms.data = [system_form.form for system_form in system.system_forms]
-        print(f"Form Data in Prefill: {form.forms.data}")
 
 
 class EquationAdmin(sqla.ModelView):
+    """Panel administracyjny dla tabeli Equation."""
     column_list = ("name_human_readable", 'formula', "sex")
     form_columns = ['name', 'name_human_readable', 'formula', 'system', 'sex']
 
@@ -246,18 +262,15 @@ class EquationAdmin(sqla.ModelView):
 
 
 class KnowledgeAdmin(sqla.ModelView):
-    # Kolumny wyświetlane w panelu
-    column_list = ['condition', 'advice', 'system.name_human_readable']
+    """Panel administracyjny dla tabeli Knowledge."""
 
-    # Mapowanie nazw kolumn
+    column_list = ['condition', 'advice', 'system.name_human_readable']
     column_labels = {
         'system.name_human_readable': 'System Name'
     }
 
-    # Kolumny, po których można sortować
     column_sortable_list = ['condition', 'advice', ('system.name_human_readable', 'system.name_human_readable')]
 
-    # Kolumny dostępne w formularzu
     form_columns = ['condition', 'advice', 'system']
 
     form_extra_fields = {
@@ -279,14 +292,14 @@ class KnowledgeAdmin(sqla.ModelView):
         }
 
 
+# Deklaracja instancji Admin
 admin = Admin(index_view=ProtectedAdminIndexView())
 
 
 def init_app(app):
-    # Tworzymy niestandardowy widok dla strony głównej admina
+    # Stworzenie niestandardowej instancji AdminIndexView
     admin_index_view = CustomAdminIndexView(name=None)
 
-    # Inicjalizujemy instancję Admin z niestandardowym widokiem
     admin = Admin(
         app,
         name=app.config.TITLE,

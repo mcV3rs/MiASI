@@ -59,7 +59,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('systemForm').addEventListener('submit', function (event) {
-                event.preventDefault(); // Prevent the default form submission
+                event.preventDefault();
 
                 const form = event.target;
                 const formData = new FormData(form);
@@ -74,7 +74,6 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        // Display the main message
                         const responseMessage = document.getElementById('responseMessage');
                         if (responseMessage) {
                             responseMessage.innerText = `${data.message}`;
@@ -82,7 +81,6 @@
 
                         console.log(data);
 
-                        // Display the equations and advice
                         displayResultsAndAdvice(data);
                     })
                     .catch(error => {
@@ -93,15 +91,13 @@
                     });
             });
 
-            // Function to display equations and advice
             function displayResultsAndAdvice(data) {
                 const resultsContainer = document.getElementById('resultsContainer');
                 const adviceContainer = document.getElementById('adviceContainer');
 
                 if (resultsContainer) {
-                    resultsContainer.innerHTML = ''; // Clear previous results
+                    resultsContainer.innerHTML = '';
 
-                    // Display the results
                     if (data.results && Array.isArray(data.results)) {
                         const resultsList = document.createElement('ul');
                         data.results.forEach(result => {
@@ -116,10 +112,17 @@
                 }
 
                 if (adviceContainer) {
-                    adviceContainer.innerHTML = ''; // Clear previous advice
+                    adviceContainer.innerHTML = '';
 
-                    // Display the advice
-                    if (data.advice) {
+                    if (data.advice && Array.isArray(data.advice)) {
+                        const adviceList = document.createElement('ul');
+                        data.advice.forEach(advice => {
+                            const listItem = document.createElement('li');
+                            listItem.innerText = advice;
+                            adviceList.appendChild(listItem);
+                        });
+                        adviceContainer.appendChild(adviceList);
+                    } else if (data.advice) {
                         adviceContainer.innerHTML = data.advice;
                     } else {
                         adviceContainer.innerHTML = '<p>No advice available.</p>';

@@ -1,9 +1,4 @@
-from decimal import Decimal
-
-
-def test_products_get_all():  # Arrange
-    pass
-
-
-def test_products_get_one():  # Arrange
-    pass
+def test_get_all_systems(client):
+    response = client.get("/systems")
+    assert response.status_code == 200
+    assert response.json == []

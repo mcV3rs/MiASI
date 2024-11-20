@@ -4,18 +4,14 @@ from flask import Flask
 
 def create_app(**config):
     app = Flask(__name__, static_url_path='/static')
-    FlaskDynaconf(app)  # config managed by Dynaconf
+    FlaskDynaconf(app)  # Konfiguracja z pliku settings.toml
     app.config.load_extensions(
         "EXTENSIONS"
-    )  # Load extensions from settings.toml
-    app.config.update(config)  # Override with passed config
+    )
+    app.config.update(config)
     return app
 
 
 def create_app_wsgi():
-    # workaround for Flask issue
-    # that doesn't allow **config
-    # to be passed to create_app
-    # https://github.com/pallets/flask/issues/4170
     app = create_app()
     return app
