@@ -291,6 +291,7 @@ class KnowledgeAdmin(sqla.ModelView):
             }
         }
 
+
 # Deklaracja instancji Admin
 admin = Admin(index_view=ProtectedAdminIndexView())
 
