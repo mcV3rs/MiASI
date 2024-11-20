@@ -91,6 +91,32 @@ def evaluate_knowledge(system, processed_data):
     if not knowledge_entries:
         return None
 
+    # Sprawdzanie, czy system jest typu wielu porad
+    if system.system_type:  # Zakładam, że 'system_type' jest typu Boolean
+        # Zwróć wszystkie porady, które spełniają warunki
+        matching_advices = []
+        for entry in knowledge_entries:
+            try:
+                # Sprawdź, czy wszystkie warunki są spełnione
+                met_conditions = sum(
+                    eval(condition, {}, processed_data)
+                    for condition in entry.condition.split(" and ")
+                )
+            except Exception as e:
+                abort(500, f"Error evaluating knowledge condition for {entry.condition}: {str(e)}")
+
+            if met_conditions > 0:  # Jeśli przynajmniej jeden warunek jest spełniony
+                matching_advices.append(entry.advice)
+
+        print(matching_advices)
+
+        # Jeśli znaleziono pasujące porady, zwróć je wszystkie
+        if matching_advices:
+            return matching_advices
+        else:
+            return None
+
+    # Jeśli system nie jest typu wielu porad, wybierz najlepszą poradę
     best_advice = None
     max_conditions_met = 0
     for entry in knowledge_entries:

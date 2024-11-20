@@ -119,7 +119,15 @@
                     adviceContainer.innerHTML = ''; // Clear previous advice
 
                     // Display the advice
-                    if (data.advice) {
+                    if (data.advice && Array.isArray(data.advice)) {
+                        const adviceList = document.createElement('ul');
+                        data.advice.forEach(advice => {
+                            const listItem = document.createElement('li');
+                            listItem.innerText = advice;
+                            adviceList.appendChild(listItem);
+                        });
+                        adviceContainer.appendChild(adviceList);
+                    } else if (data.advice) {
                         adviceContainer.innerHTML = data.advice;
                     } else {
                         adviceContainer.innerHTML = '<p>No advice available.</p>';

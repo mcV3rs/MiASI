@@ -8,7 +8,6 @@ from flask_admin.contrib import sqla
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.form import Select2Widget
 from flask_simplelogin import login_required
-from werkzeug.utils import secure_filename
 from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import StringField
 from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
@@ -175,7 +174,7 @@ class FormAdmin(ModelView):
 class SystemAdmin(ModelView):
     """Admin panel for the System table."""
     column_list = ("name", "name_human_readable", "description")
-    form_columns = ("name", "name_human_readable", "description", "forms")
+    form_columns = ("name", "name_human_readable", "description", "forms", "system_type")
     form_changed = False
 
     # Mapowanie nazw kolumn
@@ -183,6 +182,14 @@ class SystemAdmin(ModelView):
         'name': 'Code Name',
         'name_human_readable': 'Name (Human Readable)',
         'description': 'Description',
+    }
+
+    # Konfiguracja pól formularza
+    form_args = {
+        'system_type': {
+            'label': 'Multi-advice system',  # Ustawienie etykiety
+            'description': 'Check, if the system is a multi-advice system'  # Ustawienie opisu
+        }
     }
 
     form_extra_fields = {
