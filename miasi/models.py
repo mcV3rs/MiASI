@@ -178,7 +178,7 @@ class Knowledge(db.Model, SerializerMixin):
     """
     __tablename__ = 'knowledge'
 
-    id = db.Column(db.Integer, primary_key=True)  # KLUCZ GŁÓWNY
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # KLUCZ GŁÓWNY
     id_system = db.Column(db.Integer, db.ForeignKey('system.id'), nullable=False)  # KLUCZ OBCY DO SYSTEMU
 
     condition = db.Column(db.String(512))  # Wyrażenie logiczne jako string (np. "value < 18.5")
