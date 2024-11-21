@@ -99,10 +99,13 @@ def calculate_results(filtered_equations, processed_data):
     for equation in filtered_equations:
         try:
             result = eval(equation.formula, {}, processed_data)
-            results.append({
-                "equation_name": equation.name_human_readable,
-                "result": round(result, 2)
-            })
+
+            if not equation.is_internal:
+                results.append({
+                    "equation_name": equation.name_human_readable,
+                    "result": round(result, 2)
+                })
+
             processed_data[equation.name] = round(result, 2)
         except Exception as e:
             abort(500, f"Error calculating equation {equation.name_human_readable}: {str(e)}")

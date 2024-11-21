@@ -117,7 +117,8 @@ class ImportDatabaseView(BaseView):
 class FormAdmin(ModelView):
     """Panel administracyjny dla tabeli Form."""
     column_list = ("name", "name_human_readable", "description")
-    form_columns = ("name", "name_human_readable", "input_type", "description", "select_options", "select_values")
+    form_columns = (
+        "name", "name_human_readable", "input_type", "description", "unit", "select_options", "select_values")
 
     # Mapowanie nazw kolumn
     column_labels = {
@@ -232,7 +233,11 @@ class SystemAdmin(ModelView):
 class EquationAdmin(sqla.ModelView):
     """Panel administracyjny dla tabeli Equation."""
     column_list = ("name_human_readable", 'formula', "sex")
-    form_columns = ['name', 'name_human_readable', 'formula', 'system', 'sex']
+    form_columns = ['name', 'name_human_readable', 'formula', 'system', 'sex', 'is_internal']
+
+    column_formatters = {
+        'sex': lambda v, c, m, p: '-' if m.sex == 'None' else ('Female' if m.sex == 0 else 'Male')
+    }
 
     form_extra_fields = {
         'system': QuerySelectField(
@@ -248,7 +253,15 @@ class EquationAdmin(sqla.ModelView):
                 (1, 'Male'),
                 (0, 'Female')
             ]
-        )
+        ),
+    }
+
+    # Konfiguracja pól formularza
+    form_args = {
+        'is_internal': {
+            'label': 'Internal Equation',  # Ustawienie etykiety
+            'description': 'Check, if equation is internal, it won\'t be displayed in user side'  # Ustawienie opisu
+        }
     }
 
     def __init__(self, model, session, **kwargs):
