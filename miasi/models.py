@@ -152,7 +152,8 @@ class Equation(db.Model, SerializerMixin):
 
     system = db.relationship('System', backref='equations')  # Powiązanie z tabelą System
 
-    def __init__(self, id_system: int, name: str, name_human_readable: str, formula: str, sex: int = None, is_internal: bool=False):
+    def __init__(self, id_system: int, name: str, name_human_readable: str, formula: str, sex: int = None,
+                 is_internal: bool = False):
         """
         Konstruktor klasy Equation
         :param id_system: ID systemu
