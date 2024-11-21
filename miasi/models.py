@@ -76,12 +76,13 @@ class Form(db.Model, SerializerMixin):
     description = db.Column(db.Text)  # Opis pola formularza
     select_options = db.Column(db.Text, nullable=True)  # Opcje wyboru dla pól typu "select"
     select_values = db.Column(db.Text, nullable=True)  # Wartości wyboru dla pól typu "select"
+    unit = db.Column(db.String(50), nullable=True)  # Jednostka miary
 
     system_forms = db.relationship('SystemForm', back_populates='form',
                                    cascade='all, delete-orphan')  # Relacja wiele-do-wielu
 
     def __init__(self, name: str, name_human_readable: str, input_type: str, description: str,
-                 select_options: str = None, select_values: str = None):
+                 select_options: str = None, select_values: str = None, unit: str = None):
         """
         Konstruktor klasy Form
         :param name: Nazwa pola formularza używana w kodzie
@@ -90,6 +91,7 @@ class Form(db.Model, SerializerMixin):
         :param description: Opis pola formularza
         :param select_options: Opcje wyboru dla pól typu "select"
         :param select_values: Wartości wyboru dla pól typu "select"
+        :param unit: Jednostka miary
         """
         self.name = name
         self.name_human_readable = name_human_readable
@@ -97,6 +99,7 @@ class Form(db.Model, SerializerMixin):
         self.description = description
         self.select_options = select_options
         self.select_values = select_values
+        self.unit = unit
 
 
 class SystemForm(db.Model, SerializerMixin):
@@ -145,10 +148,11 @@ class Equation(db.Model, SerializerMixin):
     name_human_readable = db.Column(db.String(512))  # Nazwa równania, używana w interfejsie użytkownika
     formula = db.Column(db.Text)  # Wyrażenie matematyczne jako string (np. "weight / (height ** 2)")
     sex = db.Column(db.Integer, nullable=True)  # None - both, 1 - Male, 0 - Female
+    is_internal = db.Column(db.Boolean, default=False)  # Czy równanie jest wewnętrzne
 
     system = db.relationship('System', backref='equations')  # Powiązanie z tabelą System
 
-    def __init__(self, id_system: int, name: str, name_human_readable: str, formula: str, sex: int = None):
+    def __init__(self, id_system: int, name: str, name_human_readable: str, formula: str, sex: int = None, is_internal: bool=False):
         """
         Konstruktor klasy Equation
         :param id_system: ID systemu
@@ -156,6 +160,7 @@ class Equation(db.Model, SerializerMixin):
         :param name_human_readable: Nazwa równania, używana w interfejsie użytkownika
         :param formula: Wyrażenie matematyczne jako string (np. "weight / (height ** 2)")
         :param sex: Płeć, dla której równanie jest obliczane (None - oba, 1 - mężczyzna, 0 - kobieta)
+        :param is_internal: Czy równanie jest wewnętrzne
         """
 
         self.id_system = id_system
@@ -163,6 +168,7 @@ class Equation(db.Model, SerializerMixin):
         self.name_human_readable = name_human_readable
         self.formula = formula
         self.sex = sex
+        self.is_internal = is_internal
 
 
 class Knowledge(db.Model, SerializerMixin):

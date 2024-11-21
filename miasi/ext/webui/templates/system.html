@@ -11,7 +11,7 @@
                 {% for form in forms %}
                     <div class="form-group">
                         <label for="{{ form.name }}">
-                            {{ form.name_human_readable }}
+                            {{ form.name_human_readable }} {% if form.unit != None %} [{{ form.unit }}] {% endif %}
                             <span style="color: red;">*</span>
                         </label>
                         {% if form.input_type == 'text' %}
