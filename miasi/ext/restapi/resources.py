@@ -129,14 +129,12 @@ def evaluate_knowledge(system, processed_data):
         for entry in knowledge_entries:
             try:
                 # Sprawdź, czy wszystkie warunki są spełnione
-                met_conditions = sum(
-                    eval(condition, {}, processed_data)
-                    for condition in entry.condition.split(" and ")
-                )
+                conditions = (eval(condition, {}, processed_data) for condition in entry.condition.split(" and "))
+                met_conditions = all(conditions)  # Sprawdź, czy wszystkie warunki są spełnione
             except Exception as e:
                 abort(500, f"Error evaluating knowledge condition for {entry.condition}: {str(e)}")
 
-            if met_conditions > 0:  # Jeśli przynajmniej jeden warunek jest spełniony
+            if met_conditions:  # Jeśli wszystkie warunki są spełnione
                 matching_advices.append(entry.advice)
 
         # Jeśli znaleziono pasujące porady, zwróć je wszystkie
