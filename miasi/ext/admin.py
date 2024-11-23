@@ -9,7 +9,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.form import Select2Widget
 from flask_simplelogin import login_required
 from wtforms.fields.choices import SelectField
-from wtforms.fields.simple import StringField
+from wtforms.fields.simple import StringField, TextAreaField
 from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 
 from miasi.ext.database import db
@@ -130,6 +130,7 @@ class FormAdmin(ModelView):
     def __init__(self, model, session, **kwargs):
         super().__init__(model, session, **kwargs)
         self.extra_js = ["/static/js/admin_dynamic_fields.js"]  # Dodanie własnego JS
+        self.extra_css = ["/static/css/admin.css"]  # Dodanie własnego CSS
 
     form_extra_fields = {
         "input_type": SelectField(
@@ -141,21 +142,19 @@ class FormAdmin(ModelView):
             ],
             render_kw={"id": "input_type"}  # ID dla JavaScript
         ),
-        "select_options": StringField(
+        "select_options": TextAreaField (
             "Select Options",
             description="Enter options separated by commas (e.g., Option1, Option2, Option3)",
             render_kw={
                 "id": "select_options",  # ID dla JavaScript
-                "disabled": True,  # Domyślnie wyłączone
                 "placeholder": "Add options for the select field"
             }
         ),
-        "select_values": StringField(
+        "select_values": TextAreaField (
             "Select Values",
             description="Enter values separated by commas (e.g., 1, 2, 3)",
             render_kw={
                 "id": "select_values",  # ID dla JavaScript
-                "disabled": True,  # Domyślnie wyłączone
                 "placeholder": "Add values for the select field"
             }
         )
