@@ -9,7 +9,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.form import Select2Widget
 from flask_simplelogin import login_required
 from wtforms.fields.choices import SelectField
-from wtforms.fields.simple import StringField, TextAreaField
+from wtforms.fields.simple import TextAreaField
 from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 
 from miasi.ext.database import db
@@ -118,7 +118,8 @@ class FormAdmin(ModelView):
     """Panel administracyjny dla tabeli Form."""
     column_list = ("name", "name_human_readable", "description")
     form_columns = (
-        "name", "name_human_readable", "input_type", "description", "unit", "min_value", "max_value", "select_options", "select_values")
+        "name", "name_human_readable", "input_type", "description", "unit", "min_value", "max_value", "select_options",
+        "select_values")
 
     # Mapowanie nazw kolumn
     column_labels = {
@@ -142,7 +143,7 @@ class FormAdmin(ModelView):
             ],
             render_kw={"id": "input_type"}  # ID dla JavaScript
         ),
-        "select_options": TextAreaField (
+        "select_options": TextAreaField(
             "Select Options",
             description="Enter options separated by commas (e.g., Option1, Option2, Option3)",
             render_kw={
@@ -150,7 +151,7 @@ class FormAdmin(ModelView):
                 "placeholder": "Add options for the select field"
             }
         ),
-        "select_values": TextAreaField (
+        "select_values": TextAreaField(
             "Select Values",
             description="Enter values separated by commas (e.g., 1, 2, 3)",
             render_kw={
