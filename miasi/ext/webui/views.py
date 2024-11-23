@@ -25,8 +25,8 @@ def system(system_id):
     for form in forms:
         print(form.name)
         if form.input_type == "select":
-            form.select_options = form.select_options.split(",")
-            form.select_values = form.select_values.split(',')
+            form.select_options = form.select_options.split(";")
+            form.select_values = form.select_values.split(';')
 
             form.combined = dict()
             for i, option in enumerate(form.select_options):

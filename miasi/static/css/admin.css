@@ -1,0 +1,78 @@
+/* Kontener na tagi */
+.tag-container {
+    display: flex;
+    flex-wrap: wrap; /* Umożliwia zawijanie tagów na nowe linie */
+    gap: 10px; /* Odstępy między tagami */
+    margin-top: 10px; /* Odstęp od pola wejściowego */
+    padding: 10px; /* Wewnętrzny margines kontenera */
+    border: 1px solid #ddd; /* Jasny szary obrys */
+    border-radius: 5px; /* Zaokrąglone rogi kontenera */
+    background-color: #f8f9fa; /* Jasne tło kontenera */
+}
+
+/* Styl pojedynczego tagu */
+.tag-container .badge {
+    display: inline-flex; /* Umożliwia wyrównanie zawartości tagu */
+    align-items: center; /* Wyrównanie tekstu i przycisku usuwania w pionie */
+    padding: 5px 10px; /* Wewnętrzny margines tagu */
+    font-size: 14px; /* Rozmiar czcionki */
+    white-space: nowrap; /* Zapobiega łamaniu tekstu w tagach */
+    border-radius: 3px; /* Delikatne zaokrąglenie rogów tagu */
+    cursor: pointer; /* Zmiana kursora na wskaźnik */
+}
+
+/* Przyciski usuwania w tagach */
+.tag-container .btn-close {
+    margin-left: 8px; /* Odstęp między tekstem a przyciskiem */
+    font-size: 12px; /* Rozmiar przycisku usuwania */
+    color: #fff; /* Domyślny kolor krzyżyka */
+    background: none; /* Brak tła */
+    border: none; /* Brak obrysu */
+    appearance: none; /* Wyłączenie domyślnego stylu */
+    line-height: 1; /* Zapewnienie wyrównania */
+    padding: 0; /* Usuń dodatkowe marginesy */
+    display: flex; /* Poprawne wyświetlanie w trybie flex */
+    align-items: center; /* Wyśrodkowanie w pionie */
+    justify-content: center; /* Wyśrodkowanie w poziomie */
+    width: 16px; /* Szerokość przycisku */
+    height: 16px; /* Wysokość przycisku */
+    position: relative; /* Pozycjonowanie krzyżyka */
+    cursor: pointer; /* Zmiana kursora na wskaźnik */
+}
+
+/* Dodanie znaku krzyżyka */
+.tag-container .btn-close::before {
+    content: "×"; /* Dodaje znak krzyżyka */
+    font-weight: bold; /* Wyróżnienie krzyżyka */
+    color: red; /* Kolor krzyżyka */
+    font-size: 16px; /* Rozmiar krzyżyka */
+    line-height: 1; /* Poprawne wyrównanie */
+}
+
+/* Efekt hover dla przycisku usuwania */
+.tag-container .btn-close:hover::before {
+    color: darkred; /* Zmiana koloru na ciemniejszy przy najechaniu */
+}
+
+/* Pole wejściowe */
+input#key-value-input {
+    width: 100%; /* Rozciąga się na szerokość kontenera */
+    margin-bottom: 10px; /* Odstęp między polem a kontenerem tagów */
+    padding: 10px; /* Wewnętrzny margines pola */
+    border: 1px solid #ccc; /* Obrys pola */
+    border-radius: 5px; /* Zaokrąglenie rogów pola */
+    font-size: 14px; /* Rozmiar czcionki */
+    box-sizing: border-box; /* Uwzględnia padding w szerokości */
+}
+
+/* Efekt focus dla pola wejściowego */
+input#key-value-input:focus {
+    outline: none; /* Usuń domyślny obrys */
+    border-color: #007bff; /* Niebieski obrys przy focus */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Delikatny efekt świetlny */
+}
+
+/* Ukryte pola tekstowe */
+.hidden {
+    display: none; /* Ukrycie pól tekstowych */
+}
