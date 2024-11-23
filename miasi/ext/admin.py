@@ -118,7 +118,7 @@ class FormAdmin(ModelView):
     """Panel administracyjny dla tabeli Form."""
     column_list = ("name", "name_human_readable", "description")
     form_columns = (
-        "name", "name_human_readable", "input_type", "description", "unit", "select_options", "select_values")
+        "name", "name_human_readable", "input_type", "description", "unit", "min_value", "max_value", "select_options", "select_values")
 
     # Mapowanie nazw kolumn
     column_labels = {
