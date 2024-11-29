@@ -161,6 +161,17 @@ class FormAdmin(ModelView):
         )
     }
 
+    form_args = {
+        'min_value': {
+            'label': 'Minimum Value',  # Ustawienie etykiety
+            'description': 'If empty, minimum value will be set to 0'  # Ustawienie opisu
+        },
+        'max_value': {
+            'label': 'Maximum Value',  # Ustawienie etykiety
+            'description': 'If empty, no maximum value will be set'  # Ustawienie opisu
+        }
+    }
+
     def on_model_change(self, form, model, is_created):
         """
         Handle the saving of the select_options if input_type is 'select'.
