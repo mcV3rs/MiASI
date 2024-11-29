@@ -37,7 +37,6 @@ class CustomAdminIndexView(AdminIndexView):
 
 class DownloadDatabaseView(BaseView):
     @expose('/')
-    @login_required
     def index(self):
         """Przetwarzanie żądania pobrania bazy danych."""
 
@@ -64,7 +63,6 @@ class DownloadDatabaseView(BaseView):
 
 class ImportDatabaseView(BaseView):
     @expose('/', methods=['GET', 'POST'])
-    @login_required
     def index(self):
         """Przetwarzanie żądania importu bazy danych."""
 
@@ -75,11 +73,6 @@ class ImportDatabaseView(BaseView):
                 return redirect(request.url)
 
             file = request.files['file']
-
-            # Sprawdzenie, czy wybrano plik
-            if file.filename == '':
-                flash("No file selected.", "error")
-                return redirect(request.url)
 
             # Sprawdzenie poprawności pliku
             if file and file.filename.endswith('.db'):

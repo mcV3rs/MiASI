@@ -65,6 +65,8 @@
                 const formData = new FormData(form);
                 const jsonData = JSON.stringify(Object.fromEntries(formData.entries()));
 
+                console.log(jsonData);
+
                 fetch(`/api/v1/system/{{ system.id }}/form/submit`, {
                     method: 'POST',
                     headers: {
