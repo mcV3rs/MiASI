@@ -3,10 +3,11 @@ import sqlite3
 import tempfile
 
 import pytest
+from werkzeug.security import generate_password_hash
 
 from miasi import create_app
 from miasi.ext.database import db
-from miasi.models import System, Form, Equation, Knowledge, SystemForm
+from miasi.models import System, Form, Equation, Knowledge, SystemForm, User
 
 
 @pytest.fixture(scope="module")
@@ -173,3 +174,16 @@ def setup_empty_database(app):
 
     if os.path.exists(db_path):
         os.remove(db_path)
+
+@pytest.fixture
+def setup_user(app):
+    """Fixture to create a test user in the database."""
+    with app.app_context():
+        user = User(username="test_user", password=generate_password_hash("test_password"))
+        db.session.add(user)
+        db.session.commit()
+
+        yield user
+
+        db.session.delete(user)
+        db.session.commit()

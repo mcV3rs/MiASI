@@ -17,7 +17,7 @@ def drop_db():
     print("Database dropped")
 
 
-def populate_db(message=False):
+def populate_db():
     """Komenda wypełniająca bazę danych przykładowymi danymi"""
 
     systems = [
@@ -61,6 +61,7 @@ def populate_db(message=False):
     system_forms = [
         SystemForm(id_system=1, id_form=1),
         SystemForm(id_system=1, id_form=2),
+        SystemForm(id_system=2, id_form=1),
         SystemForm(id_system=2, id_form=2),
         SystemForm(id_system=2, id_form=3),
         SystemForm(id_system=2, id_form=4),
@@ -74,8 +75,7 @@ def populate_db(message=False):
 
     db.session.commit()
 
-    if message:
-        print("Database populated")
+    print("Database populated")
 
     return {
         "systems": System.query.all(),
@@ -90,7 +90,7 @@ def reset_db():
     """Komenda resetująca bazę danych"""
     db.drop_all()
     db.create_all()
-    populate_db(message=False)
+    populate_db()
     create_user("admin", "1234")
     print("Database reset and ready to use")
 

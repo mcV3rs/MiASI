@@ -40,6 +40,7 @@ test: lint        ## Run tests and generate coverage report.
 	$(ENV_PREFIX)pytest -v --cov-config .coveragerc --cov=miasi --cov-append -l --tb=short tests/test_cli.py
 	$(ENV_PREFIX)pytest -v --cov-config .coveragerc --cov=miasi --cov-append -l --tb=short tests/test_admin_no_database.py
 	$(ENV_PREFIX)pytest -v --cov-config .coveragerc --cov=miasi --cov-append -l --tb=short tests/test_admin.py
+	$(ENV_PREFIX)pytest -v --cov-config .coveragerc --cov=miasi --cov-append -l --tb=short tests/test_auth.py
 	$(ENV_PREFIX)coverage xml
 	$(ENV_PREFIX)coverage html
 

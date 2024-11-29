@@ -12,6 +12,6 @@ def create_app(**config):
     return app
 
 
-def create_app_wsgi():
+def create_app_wsgi():  # pragma: no cover
     app = create_app()
     return app
