@@ -1,4 +1,4 @@
-from flask import abort, jsonify, request
+from flask import abort, request
 from flask_restful import Resource
 
 from miasi.models import System, Equation, Knowledge
@@ -164,14 +164,15 @@ def evaluate_knowledge(system, processed_data):
 
 class FormsSubmissionResource(Resource):
     """Obsługuje przesyłanie formularzy i obliczanie wyników."""
-    def get(self, system_id):
-        """
-        Pobranie formularzy powiązanych z systemem.
-        :param system_id: ID systemu
-        """
-        system = System.query.filter_by(id=system_id).first() or abort(404, "System not found")
-        forms = system.forms or abort(204, "No forms found for this system")
-        return jsonify({"forms": [form.to_dict() for form in forms]})
+    # TODO: Prawdopodobnie niepotrzebne
+    # def get(self, system_id):
+    #     """
+    #     Pobranie formularzy powiązanych z systemem.
+    #     :param system_id: ID systemu
+    #     """
+    #     system = System.query.filter_by(id=system_id).first() or abort(404, "System not found")
+    #     forms = system.forms or abort(204, "No forms found for this system")
+    #     return jsonify({"forms": [form.to_dict() for form in forms]})
 
     def post(self, system_id):
         """

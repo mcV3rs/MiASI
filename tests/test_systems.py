@@ -17,7 +17,7 @@ def test_system_list(client, setup_system):
     assert b"Kalkulator BMI" in response.data
 
 
-def test_system_forms(client, setup_system):
+def test_system1_forms(client, setup_system):
     """Test the forms associated with a system."""
     with client.application.app_context():
         # Retrieve the system within the context
@@ -25,6 +25,15 @@ def test_system_forms(client, setup_system):
         response = client.get(f"/system/{system.id}")
         assert response.status_code == 200
         assert b"Kalkulator BMI" in response.data
+
+def test_system2_forms(client, setup_system):
+    """Test the forms associated with a system."""
+    with client.application.app_context():
+        # Retrieve the system within the context
+        system = System.query.get(3)
+        response = client.get(f"/system/{system.id}")
+        assert response.status_code == 200
+        assert b"Kalkulator AMR" in response.data
 
 
 def test_system_in_database(client, setup_system):
@@ -35,7 +44,7 @@ def test_system_in_database(client, setup_system):
         assert system.name == "BMI_Calculator"
 
 
-def test_system_form_submission(client, setup_system):
+def test_system1_form_submission(client, setup_system):
     """Test form submission and equation calculation."""
     with client.application.app_context():
         system_id = setup_system["systems"][0].id
@@ -57,6 +66,48 @@ def test_system_form_submission(client, setup_system):
 
         assert 'result' in result[0]
         assert result[0]['result'] == pytest.approx(22.86, rel=1e-2)
+
+def test_system2_form_submission(client, setup_system):
+    """Test form submission and equation calculation."""
+    with client.application.app_context():
+        system_id = setup_system["systems"][1].id
+        data = {"height": "1.75", "weight": "70", "age": "25", "sex": "1"}
+        response = client.post(f"/api/v1/system/{system_id}/form/submit", json=data)
+        result = response.json["results"]
+
+        assert response.status_code == 201
+
+        assert "message" in response.json
+        assert "Equations calculated successfully, but no advice available" in response.json["message"]
+
+        assert "results" in response.json
+        assert 'equation_name' in result[0]
+        assert 'Basal Metabolic Rate - Male' in result[0]['equation_name']
+
+        assert 'result' in result[0]
+        assert result[0]['result'] == pytest.approx(1755, rel=1e-2)
+
+
+def test_system3_form_submission(client, setup_system):
+    """Test form submission and equation calculation."""
+    with client.application.app_context():
+        system_id = setup_system["systems"][2].id
+        data = {"height": "1.75", "weight": "70", "age": "25", "sex": "1", "activity_level": "1.8"}
+
+        response = client.post(f"/api/v1/system/{system_id}/form/submit", json=data)
+        result = response.json["results"]
+
+        assert response.status_code == 201
+
+        assert "message" in response.json
+        assert "Equations calculated successfully, but no advice available" in response.json["message"]
+
+        assert "results" in response.json
+        assert 'equation_name' in result[0]
+        assert 'Active Metabolic Rate - Male' in result[0]['equation_name']
+
+        assert 'result' in result[0]
+        assert result[0]['result'] == pytest.approx(3159, rel=1e-2)
 
 
 def test_add_system(app):

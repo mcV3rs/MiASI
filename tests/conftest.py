@@ -63,7 +63,9 @@ def setup_system(app):
             System(name="BMI_Calculator", name_human_readable="Kalkulator BMI",
                    description="System, który umożliwi Ci sprawdzenie swojego BMI"),
             System(name="BMR_Calculator", name_human_readable="Kalkulator BMR",
-                   description="Kalkulator, który pozwoli Ci obliczyć zapotrzebowanie kaloryczne (BMR)")
+                   description="Kalkulator, który pozwoli Ci obliczyć zapotrzebowanie kaloryczne (BMR)"),
+            System(name="AMR_Calculator", name_human_readable="Kalkulator AMR",
+                   description="Kalkulator, który pozwoli Ci obliczyć zapotrzebowanie kaloryczne (AMR)")
         ]
 
         forms = [
@@ -74,7 +76,11 @@ def setup_system(app):
             Form(name="age", name_human_readable="Wiek", input_type="number",
                  description="Wiek w pełnych latach"),
             Form(name="sex", name_human_readable="Płeć", input_type="sex",
-                 description="Wybierz swoją płeć")
+                 description="Wybierz swoją płeć"),
+            Form(name="activity_level", name_human_readable="Poziom aktywności", input_type="select",
+                 select_options="1; 1.2; 1.4; 1.6; 1.8",
+                 select_values="Siedzący; Mało aktywny; Umiarkowanie aktywny; Aktywny; Bardzo aktywny",
+                 description="Wybierz swój poziom aktywności")
         ]
 
         equations = [
@@ -83,7 +89,11 @@ def setup_system(app):
             Equation(id_system=2, name="BMR_Male", name_human_readable="Basal Metabolic Rate - Male",
                      formula="66 + (13.7 * weight) + (500 * height) - (5.8 * age)", sex=1),
             Equation(id_system=2, name="BMR_Female", name_human_readable="Basal Metabolic Rate - Female",
-                     formula="655 + (9.6 * weight) + (180 * height) - (4.7 * age)", sex=0)
+                     formula="655 + (9.6 * weight) + (180 * height) - (4.7 * age)", sex=0),
+            Equation(id_system=3, name="AMR", name_human_readable="Active Metabolic Rate - Female",
+                     formula="round((655 + (9.6 * weight) + (180 * height) - (4.7 * age) ) * activity_level)", sex=0),
+            Equation(id_system=3, name="AMR", name_human_readable="Active Metabolic Rate - Male",
+                        formula="round((66 + (13.7 * weight) + (500 * height) - (5.8 * age) ) *  activity_level)", sex=1)
         ]
 
         knowledge = [
@@ -104,6 +114,11 @@ def setup_system(app):
             SystemForm(id_system=2, id_form=2),
             SystemForm(id_system=2, id_form=3),
             SystemForm(id_system=2, id_form=4),
+            SystemForm(id_system=3, id_form=1),
+            SystemForm(id_system=3, id_form=2),
+            SystemForm(id_system=3, id_form=3),
+            SystemForm(id_system=3, id_form=4),
+            SystemForm(id_system=3, id_form=5)
         ]
 
         db.session.bulk_save_objects(systems)

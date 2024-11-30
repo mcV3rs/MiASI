@@ -78,9 +78,6 @@ class ImportDatabaseView(BaseView):
             if file and file.filename.endswith('.db'):
                 # Pobranie nazwy pliku docelowego z konfiguracji aplikacji
                 db_uri = current_app.config.get('SQLALCHEMY_DATABASE_URI', '')
-                if not db_uri.startswith('sqlite:///'):
-                    flash("Only SQLite databases are supported for import.", "error")
-                    return redirect(request.url)
 
                 # Wyodrębnienie ścieżki i nazwy pliku bazy danych
                 db_filename = db_uri.replace('sqlite:///', '')
