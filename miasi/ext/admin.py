@@ -4,7 +4,6 @@ from datetime import datetime
 from flask import current_app, send_file, request, flash, redirect, url_for
 from flask_admin import Admin
 from flask_admin.base import AdminIndexView, BaseView, expose
-from flask_admin.contrib import sqla
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.form import Select2Widget
 from flask_simplelogin import login_required
@@ -37,6 +36,7 @@ class CustomAdminIndexView(AdminIndexView):
 
 class DownloadDatabaseView(BaseView):
     @expose('/')
+    @login_required
     def index(self):
         """Przetwarzanie żądania pobrania bazy danych."""
 
@@ -63,6 +63,7 @@ class DownloadDatabaseView(BaseView):
 
 class ImportDatabaseView(BaseView):
     @expose('/', methods=['GET', 'POST'])
+    @login_required
     def index(self):
         """Przetwarzanie żądania importu bazy danych."""
 
@@ -104,7 +105,7 @@ class ImportDatabaseView(BaseView):
 
 
 # Specjalne widoki
-class FormAdmin(ModelView):
+class FormAdmin(ProtectedModelView):
     """Panel administracyjny dla tabeli Form."""
     column_list = ("name", "name_human_readable", "description")
     form_columns = (
@@ -173,7 +174,7 @@ class FormAdmin(ModelView):
         super().on_model_change(form, model, is_created)
 
 
-class SystemAdmin(ModelView):
+class SystemAdmin(ProtectedModelView):
     """Panel administracyjny dla tabeli System."""
     column_list = ("name", "name_human_readable", "description")
     form_columns = ("name", "name_human_readable", "description", "forms", "system_type")
@@ -231,7 +232,7 @@ class SystemAdmin(ModelView):
             form.forms.data = [system_form.form for system_form in system.system_forms]
 
 
-class EquationAdmin(sqla.ModelView):
+class EquationAdmin(ProtectedModelView):
     """Panel administracyjny dla tabeli Equation."""
     column_list = ("name_human_readable", 'formula', "sex")
     form_columns = ['name', 'name_human_readable', 'formula', 'system', 'sex', 'is_internal']
@@ -275,7 +276,7 @@ class EquationAdmin(sqla.ModelView):
         }
 
 
-class KnowledgeAdmin(sqla.ModelView):
+class KnowledgeAdmin(ProtectedModelView):
     """Panel administracyjny dla tabeli Knowledge."""
 
     column_list = ['condition', 'advice', 'system.name_human_readable']
@@ -311,13 +312,10 @@ admin = Admin(index_view=ProtectedAdminIndexView())
 
 
 def init_app(app):
-    # Stworzenie niestandardowej instancji AdminIndexView
-    admin_index_view = CustomAdminIndexView(name=None)
-
     admin = Admin(
         app,
         name=app.config.TITLE,
-        index_view=admin_index_view,
+        index_view=ProtectedAdminIndexView(),
         template_mode=app.config.FLASK_ADMIN_TEMPLATE_MODE
     )
 

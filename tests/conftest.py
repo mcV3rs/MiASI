@@ -24,9 +24,9 @@ def app():
         yield app
 
         # Usuwanie sesji i pliku bazy danych po zakończeniu testów
-        db.session.remove()
-        db.drop_all()
         if os.path.exists(db_path):
+            db.session.remove()
+            db.drop_all()
             os.remove(db_path)
 
 
@@ -208,3 +208,37 @@ def setup_user(app):
 
         db.session.delete(user)
         db.session.commit()
+
+@pytest.fixture
+def setup_admin_user(app):
+    """Fixture tworzący użytkownika administracyjnego w bazie danych."""
+    with app.app_context():
+        # Sprawdź, czy użytkownik już istnieje
+        admin_user = User.query.filter_by(username="admin").first()
+        if not admin_user:
+            hashed_password = generate_password_hash("admin_password")
+            admin_user = User(username="admin", password=hashed_password)
+            db.session.add(admin_user)
+            db.session.commit()
+        return admin_user
+
+@pytest.fixture
+def login_as_admin(client, setup_admin_user):
+    """
+    Fixture logująca użytkownika administracyjnego.
+    """
+    # Dane logowania administratora
+    admin_credentials = {
+        "username": "admin",
+        "password": "admin_password"
+    }
+
+    # Wysyłanie żądania POST na endpoint logowania
+    response = client.post(
+        "/login",  # Upewnij się, że to jest prawidłowy endpoint logowania
+        data=admin_credentials,
+        follow_redirects=True
+    )
+
+    # Weryfikacja poprawności logowania
+    assert response.status_code == 200
