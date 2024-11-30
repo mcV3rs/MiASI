@@ -1,6 +1,9 @@
 import pytest
+from werkzeug.security import generate_password_hash, check_password_hash
+
 from miasi.ext.database import db
-from miasi.models import System, Form
+from miasi.models import System, Form, User, SystemForm
+
 
 def test_database_isolation(app):
     """Ensure the database is isolated for tests."""
@@ -153,3 +156,52 @@ def test_delete_system(app, setup_system):
 
         deleted_system = System.query.get(system.id)
         assert deleted_system is None
+
+
+def test_hash_password():
+    """Test funkcji hash_password()"""
+    plain_password = "my_secure_password"
+    hashed_password = User.hash_password(plain_password)
+
+    assert hashed_password is not None
+    assert hashed_password != plain_password
+    assert check_password_hash(hashed_password, plain_password)
+
+
+def test_create_system_form_with_objects(app, setup_system):
+    """Test tworzenia SystemForm za pomocą obiektów System i Form."""
+    system = setup_system["systems"][3]
+    form = setup_system["forms"][0]
+
+    # Tworzenie SystemForm za pomocą obiektów
+    system_form = SystemForm(system=system, form=form)
+
+    # Dodanie do sesji i commit
+    with app.app_context():
+        db.session.add(system_form)
+        db.session.commit()
+
+        # Pobranie obiektu z bazy
+        retrieved_system_form = SystemForm.query.filter_by(id_system=system.id, id_form=form.id).first()
+
+        assert retrieved_system_form is not None
+        assert retrieved_system_form.id_system == system.id
+        assert retrieved_system_form.id_form == form.id
+
+
+def test_create_system_form_with_ids(app, setup_system):
+    """Test tworzenia SystemForm za pomocą ID systemu i formularza."""
+    system = setup_system["systems"][0]
+    form = setup_system["forms"][0]
+    system_form = SystemForm(id_system=system.id, id_form=form.id)
+
+    assert system_form.id_system == system.id
+    assert system_form.id_form == form.id
+    assert system_form.system is None
+    assert system_form.form is None
+
+
+def test_create_system_form_with_missing_parameters():
+    with pytest.raises(ValueError) as excinfo:
+        SystemForm()
+    assert "Either system and form objects or id_system and id_form must be provided" in str(excinfo.value)

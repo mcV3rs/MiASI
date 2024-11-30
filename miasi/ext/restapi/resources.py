@@ -18,8 +18,6 @@ def get_request_data():
     """
     try:
         data = request.get_json()
-        if not data:
-            raise ValueError("No data provided")
         return data
     except Exception as e:
         abort(400, f"Error parsing input data: {str(e)}")
@@ -68,6 +66,10 @@ def process_data(data, required_forms):
                     processed_data[field_name] = float(field_value.strip())
                 else:
                     processed_data[field_name] = field_value.strip()
+
+        if processed_data == {}:
+            abort(400, "No valid data provided")
+
         return processed_data
     except Exception as e:
         abort(400, f"Error processing data: {str(e)}")

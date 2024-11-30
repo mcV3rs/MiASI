@@ -65,7 +65,9 @@ def setup_system(app):
             System(name="BMR_Calculator", name_human_readable="Kalkulator BMR",
                    description="Kalkulator, który pozwoli Ci obliczyć zapotrzebowanie kaloryczne (BMR)"),
             System(name="AMR_Calculator", name_human_readable="Kalkulator AMR",
-                   description="Kalkulator, który pozwoli Ci obliczyć zapotrzebowanie kaloryczne (AMR)")
+                   description="Kalkulator, który pozwoli Ci obliczyć zapotrzebowanie kaloryczne (AMR)"),
+            System(name="Test_No_Equations", name_human_readable="Testowy system bez równań", description="Test"),
+            System(name="Test_Many_Advices", name_human_readable="Testowy system z wieloma poradami", description="Test", system_type=True)
         ]
 
         forms = [
@@ -97,14 +99,16 @@ def setup_system(app):
         ]
 
         knowledge = [
-            Knowledge(id_system=1, condition="BMI < 18.5",
+            Knowledge(id_system=1, condition="0 <= BMI < 18.5",
                       advice="Twoja waga jest zbyt niska. Rozważ konsultację z dietetykiem."),
             Knowledge(id_system=1, condition="18.5 <= BMI < 25",
                       advice="Twoja waga jest w normie. Utrzymuj zdrowy styl życia!"),
             Knowledge(id_system=1, condition="25 <= BMI < 30",
                       advice="Masz nadwagę. Rozważ zwiększenie aktywności fizycznej i konsultację z dietetykiem."),
             Knowledge(id_system=1, condition="BMI >= 30",
-                      advice="Masz otyłość. Skonsultuj się z lekarzem i dietetykiem.")
+                      advice="Masz otyłość. Skonsultuj się z lekarzem i dietetykiem."),
+            Knowledge(id_system=5, condition="height == 0", advice="Rada 1"),
+            Knowledge(id_system=5, condition="weight == 0", advice="Rada 2"),
         ]
 
         system_forms = [
@@ -118,7 +122,9 @@ def setup_system(app):
             SystemForm(id_system=3, id_form=2),
             SystemForm(id_system=3, id_form=3),
             SystemForm(id_system=3, id_form=4),
-            SystemForm(id_system=3, id_form=5)
+            SystemForm(id_system=3, id_form=5),
+            SystemForm(id_system=5, id_form=1),
+            SystemForm(id_system=5, id_form=2),
         ]
 
         db.session.bulk_save_objects(systems)
