@@ -4,9 +4,9 @@ from datetime import datetime
 from flask import current_app, send_file, request, flash, redirect, url_for
 from flask_admin import Admin
 from flask_admin.base import AdminIndexView, BaseView, expose
-from flask_admin.contrib import sqla
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.form import Select2Widget
+from flask_admin.menu import MenuLink
 from flask_simplelogin import login_required
 from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import TextAreaField
@@ -76,18 +76,10 @@ class ImportDatabaseView(BaseView):
 
             file = request.files['file']
 
-            # Sprawdzenie, czy wybrano plik
-            if file.filename == '':
-                flash("No file selected.", "error")
-                return redirect(request.url)
-
             # Sprawdzenie poprawności pliku
             if file and file.filename.endswith('.db'):
                 # Pobranie nazwy pliku docelowego z konfiguracji aplikacji
                 db_uri = current_app.config.get('SQLALCHEMY_DATABASE_URI', '')
-                if not db_uri.startswith('sqlite:///'):
-                    flash("Only SQLite databases are supported for import.", "error")
-                    return redirect(request.url)
 
                 # Wyodrębnienie ścieżki i nazwy pliku bazy danych
                 db_filename = db_uri.replace('sqlite:///', '')
@@ -114,7 +106,7 @@ class ImportDatabaseView(BaseView):
 
 
 # Specjalne widoki
-class FormAdmin(ModelView):
+class FormAdmin(ProtectedModelView):
     """Panel administracyjny dla tabeli Form."""
     column_list = ("name", "name_human_readable", "description")
     form_columns = (
@@ -183,7 +175,7 @@ class FormAdmin(ModelView):
         super().on_model_change(form, model, is_created)
 
 
-class SystemAdmin(ModelView):
+class SystemAdmin(ProtectedModelView):
     """Panel administracyjny dla tabeli System."""
     column_list = ("name", "name_human_readable", "description")
     form_columns = ("name", "name_human_readable", "description", "forms", "system_type")
@@ -241,7 +233,7 @@ class SystemAdmin(ModelView):
             form.forms.data = [system_form.form for system_form in system.system_forms]
 
 
-class EquationAdmin(sqla.ModelView):
+class EquationAdmin(ProtectedModelView):
     """Panel administracyjny dla tabeli Equation."""
     column_list = ("name_human_readable", 'formula', "sex")
     form_columns = ['name', 'name_human_readable', 'formula', 'system', 'sex', 'is_internal']
@@ -285,7 +277,7 @@ class EquationAdmin(sqla.ModelView):
         }
 
 
-class KnowledgeAdmin(sqla.ModelView):
+class KnowledgeAdmin(ProtectedModelView):
     """Panel administracyjny dla tabeli Knowledge."""
 
     column_list = ['condition', 'advice', 'system.name_human_readable']
@@ -321,13 +313,10 @@ admin = Admin(index_view=ProtectedAdminIndexView())
 
 
 def init_app(app):
-    # Stworzenie niestandardowej instancji AdminIndexView
-    admin_index_view = CustomAdminIndexView(name=None)
-
     admin = Admin(
         app,
         name=app.config.TITLE,
-        index_view=admin_index_view,
+        index_view=ProtectedAdminIndexView(),
         template_mode=app.config.FLASK_ADMIN_TEMPLATE_MODE
     )
 
@@ -340,3 +329,4 @@ def init_app(app):
     # Dodajemy dodatkowe widoki
     admin.add_view(DownloadDatabaseView(name="Export", endpoint="download-database"))
     admin.add_view(ImportDatabaseView(name="Import", endpoint="import-database"))
+    admin.add_link(MenuLink(name="Logout", category="", url="/logout"))

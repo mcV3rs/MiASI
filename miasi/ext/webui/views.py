@@ -23,7 +23,6 @@ def system(system_id):
 
     # Sprawdzenie, czy którykolwiek z pól formularza jest typu select
     for form in forms:
-        print(form.name)
         if form.input_type == "select":
             form.select_options = form.select_options.split(";")
             form.select_values = form.select_values.split(';')
