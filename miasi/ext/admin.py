@@ -6,6 +6,7 @@ from flask_admin import Admin
 from flask_admin.base import AdminIndexView, BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.form import Select2Widget
+from flask_admin.menu import MenuLink
 from flask_simplelogin import login_required
 from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import TextAreaField
@@ -328,3 +329,4 @@ def init_app(app):
     # Dodajemy dodatkowe widoki
     admin.add_view(DownloadDatabaseView(name="Export", endpoint="download-database"))
     admin.add_view(ImportDatabaseView(name="Import", endpoint="import-database"))
+    admin.add_link(MenuLink(name="Logout", category="", url="/logout"))
