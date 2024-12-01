@@ -135,3 +135,4 @@ dmypy.json
 .github/templates/*
 development.db
 miasi.egg-info/*
+/tests.zip

@@ -1,78 +1,78 @@
 /* Kontener na tagi */
 .tag-container {
     display: flex;
-    flex-wrap: wrap; /* Umożliwia zawijanie tagów na nowe linie */
-    gap: 10px; /* Odstępy między tagami */
-    margin-top: 10px; /* Odstęp od pola wejściowego */
-    padding: 10px; /* Wewnętrzny margines kontenera */
-    border: 1px solid #ddd; /* Jasny szary obrys */
-    border-radius: 5px; /* Zaokrąglone rogi kontenera */
-    background-color: #f8f9fa; /* Jasne tło kontenera */
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f8f9fa;
 }
 
 /* Styl pojedynczego tagu */
 .tag-container .badge {
-    display: inline-flex; /* Umożliwia wyrównanie zawartości tagu */
-    align-items: center; /* Wyrównanie tekstu i przycisku usuwania w pionie */
-    padding: 5px 10px; /* Wewnętrzny margines tagu */
-    font-size: 14px; /* Rozmiar czcionki */
-    white-space: nowrap; /* Zapobiega łamaniu tekstu w tagach */
-    border-radius: 3px; /* Delikatne zaokrąglenie rogów tagu */
-    cursor: pointer; /* Zmiana kursora na wskaźnik */
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    font-size: 14px;
+    white-space: nowrap;
+    border-radius: 3px;
+    cursor: pointer;
 }
 
 /* Przyciski usuwania w tagach */
 .tag-container .btn-close {
-    margin-left: 8px; /* Odstęp między tekstem a przyciskiem */
-    font-size: 12px; /* Rozmiar przycisku usuwania */
-    color: #fff; /* Domyślny kolor krzyżyka */
-    background: none; /* Brak tła */
-    border: none; /* Brak obrysu */
-    appearance: none; /* Wyłączenie domyślnego stylu */
-    line-height: 1; /* Zapewnienie wyrównania */
-    padding: 0; /* Usuń dodatkowe marginesy */
-    display: flex; /* Poprawne wyświetlanie w trybie flex */
-    align-items: center; /* Wyśrodkowanie w pionie */
-    justify-content: center; /* Wyśrodkowanie w poziomie */
-    width: 16px; /* Szerokość przycisku */
-    height: 16px; /* Wysokość przycisku */
-    position: relative; /* Pozycjonowanie krzyżyka */
-    cursor: pointer; /* Zmiana kursora na wskaźnik */
+    margin-left: 8px;
+    font-size: 12px;
+    color: #fff;
+    background: none;
+    border: none;
+    appearance: none;
+    line-height: 1;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    position: relative;
+    cursor: pointer;
 }
 
 /* Dodanie znaku krzyżyka */
 .tag-container .btn-close::before {
-    content: "×"; /* Dodaje znak krzyżyka */
-    font-weight: bold; /* Wyróżnienie krzyżyka */
-    color: red; /* Kolor krzyżyka */
-    font-size: 16px; /* Rozmiar krzyżyka */
-    line-height: 1; /* Poprawne wyrównanie */
+    content: "×";
+    font-weight: bold;
+    color: red;
+    font-size: 16px;
+    line-height: 1;
 }
 
 /* Efekt hover dla przycisku usuwania */
 .tag-container .btn-close:hover::before {
-    color: darkred; /* Zmiana koloru na ciemniejszy przy najechaniu */
+    color: darkred;
 }
 
 /* Pole wejściowe */
 input#key-value-input {
-    width: 100%; /* Rozciąga się na szerokość kontenera */
-    margin-bottom: 10px; /* Odstęp między polem a kontenerem tagów */
-    padding: 10px; /* Wewnętrzny margines pola */
-    border: 1px solid #ccc; /* Obrys pola */
-    border-radius: 5px; /* Zaokrąglenie rogów pola */
-    font-size: 14px; /* Rozmiar czcionki */
-    box-sizing: border-box; /* Uwzględnia padding w szerokości */
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    box-sizing: border-box;
 }
 
 /* Efekt focus dla pola wejściowego */
 input#key-value-input:focus {
-    outline: none; /* Usuń domyślny obrys */
-    border-color: #007bff; /* Niebieski obrys przy focus */
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Delikatny efekt świetlny */
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
 /* Ukryte pola tekstowe */
 .hidden {
-    display: none; /* Ukrycie pól tekstowych */
+    display: none;
 }

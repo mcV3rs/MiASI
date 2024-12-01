@@ -22,7 +22,6 @@
                                    placeholder="{{ form.description }}" step="any" min="{% if form.min_value != None %}{{ form.min_value }}{% else %} 0{% endif %}" {% if form.max_value != None %} max="{{ form.max_value }}" {% endif %} required>
                         {% elif form.input_type == 'sex' %}
                             <select class="form-control" id="{{ form.name }}" name="{{ form.name }}" required>
-                                <!-- Pole oznaczone jako wymagane -->
                                 <option value="" disabled selected>{{ form.description }}</option>
                                 <option value="1">Mężczyzna</option>
                                 <option value="0">Kobieta</option>
