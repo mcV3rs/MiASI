@@ -17,7 +17,7 @@ def drop_db():
     print("Database dropped")
 
 
-def populate_db(message=False):
+def populate_db():
     """Komenda wypełniająca bazę danych przykładowymi danymi"""
 
     systems = [
@@ -48,22 +48,23 @@ def populate_db(message=False):
     ]
 
     knowledge = [
-        Knowledge(id_system=1, condition="value < 18.5",
+        Knowledge(id_system=1, condition="BMI < 18.5",
                   advice="Twoja waga jest zbyt niska. Rozważ konsultację z dietetykiem."),
-        Knowledge(id_system=1, condition="value >= 18.5 and value < 25",
+        Knowledge(id_system=1, condition="18.5 <= BMI < 25",
                   advice="Twoja waga jest w normie. Utrzymuj zdrowy styl życia!"),
-        Knowledge(id_system=1, condition="value >= 25 and value < 30",
+        Knowledge(id_system=1, condition="25 <= BMI < 30",
                   advice="Masz nadwagę. Rozważ zwiększenie aktywności fizycznej i konsultację z dietetykiem."),
-        Knowledge(id_system=1, condition="value >= 30",
+        Knowledge(id_system=1, condition="BMI >= 30",
                   advice="Masz otyłość. Skonsultuj się z lekarzem i dietetykiem.")
     ]
 
     system_forms = [
         SystemForm(id_system=1, id_form=1),
         SystemForm(id_system=1, id_form=2),
+        SystemForm(id_system=2, id_form=1),
         SystemForm(id_system=2, id_form=2),
-        SystemForm(system=systems[1], form=forms[2]),
-        SystemForm(system=systems[1], form=forms[3]),
+        SystemForm(id_system=2, id_form=3),
+        SystemForm(id_system=2, id_form=4),
     ]
 
     db.session.bulk_save_objects(systems)
@@ -74,8 +75,7 @@ def populate_db(message=False):
 
     db.session.commit()
 
-    if message:
-        print("Database populated")
+    print("Database populated")
 
     return {
         "systems": System.query.all(),
@@ -90,7 +90,7 @@ def reset_db():
     """Komenda resetująca bazę danych"""
     db.drop_all()
     db.create_all()
-    populate_db(message=False)
+    populate_db()
     create_user("admin", "1234")
     print("Database reset and ready to use")
 

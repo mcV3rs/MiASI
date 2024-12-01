@@ -4,12 +4,12 @@ from datetime import datetime
 from flask import current_app, send_file, request, flash, redirect, url_for
 from flask_admin import Admin
 from flask_admin.base import AdminIndexView, BaseView, expose
-from flask_admin.contrib import sqla
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.form import Select2Widget
+from flask_admin.menu import MenuLink
 from flask_simplelogin import login_required
 from wtforms.fields.choices import SelectField
-from wtforms.fields.simple import StringField
+from wtforms.fields.simple import TextAreaField
 from wtforms_sqlalchemy.fields import QuerySelectField, QuerySelectMultipleField
 
 from miasi.ext.database import db
@@ -76,18 +76,10 @@ class ImportDatabaseView(BaseView):
 
             file = request.files['file']
 
-            # Sprawdzenie, czy wybrano plik
-            if file.filename == '':
-                flash("No file selected.", "error")
-                return redirect(request.url)
-
             # Sprawdzenie poprawności pliku
             if file and file.filename.endswith('.db'):
                 # Pobranie nazwy pliku docelowego z konfiguracji aplikacji
                 db_uri = current_app.config.get('SQLALCHEMY_DATABASE_URI', '')
-                if not db_uri.startswith('sqlite:///'):
-                    flash("Only SQLite databases are supported for import.", "error")
-                    return redirect(request.url)
 
                 # Wyodrębnienie ścieżki i nazwy pliku bazy danych
                 db_filename = db_uri.replace('sqlite:///', '')
@@ -114,11 +106,12 @@ class ImportDatabaseView(BaseView):
 
 
 # Specjalne widoki
-class FormAdmin(ModelView):
+class FormAdmin(ProtectedModelView):
     """Panel administracyjny dla tabeli Form."""
     column_list = ("name", "name_human_readable", "description")
     form_columns = (
-        "name", "name_human_readable", "input_type", "description", "unit", "select_options", "select_values")
+        "name", "name_human_readable", "input_type", "description", "unit", "min_value", "max_value", "select_options",
+        "select_values")
 
     # Mapowanie nazw kolumn
     column_labels = {
@@ -130,6 +123,7 @@ class FormAdmin(ModelView):
     def __init__(self, model, session, **kwargs):
         super().__init__(model, session, **kwargs)
         self.extra_js = ["/static/js/admin_dynamic_fields.js"]  # Dodanie własnego JS
+        self.extra_css = ["/static/css/admin.css"]  # Dodanie własnego CSS
 
     form_extra_fields = {
         "input_type": SelectField(
@@ -141,24 +135,33 @@ class FormAdmin(ModelView):
             ],
             render_kw={"id": "input_type"}  # ID dla JavaScript
         ),
-        "select_options": StringField(
+        "select_options": TextAreaField(
             "Select Options",
             description="Enter options separated by commas (e.g., Option1, Option2, Option3)",
             render_kw={
                 "id": "select_options",  # ID dla JavaScript
-                "disabled": True,  # Domyślnie wyłączone
                 "placeholder": "Add options for the select field"
             }
         ),
-        "select_values": StringField(
+        "select_values": TextAreaField(
             "Select Values",
             description="Enter values separated by commas (e.g., 1, 2, 3)",
             render_kw={
                 "id": "select_values",  # ID dla JavaScript
-                "disabled": True,  # Domyślnie wyłączone
                 "placeholder": "Add values for the select field"
             }
         )
+    }
+
+    form_args = {
+        'min_value': {
+            'label': 'Minimum Value',  # Ustawienie etykiety
+            'description': 'If empty, minimum value will be set to 0'  # Ustawienie opisu
+        },
+        'max_value': {
+            'label': 'Maximum Value',  # Ustawienie etykiety
+            'description': 'If empty, no maximum value will be set'  # Ustawienie opisu
+        }
     }
 
     def on_model_change(self, form, model, is_created):
@@ -172,7 +175,7 @@ class FormAdmin(ModelView):
         super().on_model_change(form, model, is_created)
 
 
-class SystemAdmin(ModelView):
+class SystemAdmin(ProtectedModelView):
     """Panel administracyjny dla tabeli System."""
     column_list = ("name", "name_human_readable", "description")
     form_columns = ("name", "name_human_readable", "description", "forms", "system_type")
@@ -230,7 +233,7 @@ class SystemAdmin(ModelView):
             form.forms.data = [system_form.form for system_form in system.system_forms]
 
 
-class EquationAdmin(sqla.ModelView):
+class EquationAdmin(ProtectedModelView):
     """Panel administracyjny dla tabeli Equation."""
     column_list = ("name_human_readable", 'formula', "sex")
     form_columns = ['name', 'name_human_readable', 'formula', 'system', 'sex', 'is_internal']
@@ -274,7 +277,7 @@ class EquationAdmin(sqla.ModelView):
         }
 
 
-class KnowledgeAdmin(sqla.ModelView):
+class KnowledgeAdmin(ProtectedModelView):
     """Panel administracyjny dla tabeli Knowledge."""
 
     column_list = ['condition', 'advice', 'system.name_human_readable']
@@ -310,13 +313,10 @@ admin = Admin(index_view=ProtectedAdminIndexView())
 
 
 def init_app(app):
-    # Stworzenie niestandardowej instancji AdminIndexView
-    admin_index_view = CustomAdminIndexView(name=None)
-
     admin = Admin(
         app,
         name=app.config.TITLE,
-        index_view=admin_index_view,
+        index_view=ProtectedAdminIndexView(),
         template_mode=app.config.FLASK_ADMIN_TEMPLATE_MODE
     )
 
@@ -329,3 +329,4 @@ def init_app(app):
     # Dodajemy dodatkowe widoki
     admin.add_view(DownloadDatabaseView(name="Export", endpoint="download-database"))
     admin.add_view(ImportDatabaseView(name="Import", endpoint="import-database"))
+    admin.add_link(MenuLink(name="Logout", category="", url="/logout"))

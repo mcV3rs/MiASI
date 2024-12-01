@@ -19,7 +19,7 @@
                                    placeholder="{{ form.description }}" required>
                         {% elif form.input_type == 'number' %}
                             <input type="number" class="form-control" id="{{ form.name }}" name="{{ form.name }}"
-                                   placeholder="{{ form.description }}" step="any" min="0" required>
+                                   placeholder="{{ form.description }}" step="any" min="{% if form.min_value != None %}{{ form.min_value }}{% else %} 0{% endif %}" {% if form.max_value != None %} max="{{ form.max_value }}" {% endif %} required>
                         {% elif form.input_type == 'sex' %}
                             <select class="form-control" id="{{ form.name }}" name="{{ form.name }}" required>
                                 <!-- Pole oznaczone jako wymagane -->
@@ -64,6 +64,8 @@
                 const form = event.target;
                 const formData = new FormData(form);
                 const jsonData = JSON.stringify(Object.fromEntries(formData.entries()));
+
+                console.log(jsonData);
 
                 fetch(`/api/v1/system/{{ system.id }}/form/submit`, {
                     method: 'POST',

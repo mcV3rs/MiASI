@@ -77,6 +77,8 @@ class Form(db.Model, SerializerMixin):
     select_options = db.Column(db.Text, nullable=True)  # Opcje wyboru dla pól typu "select"
     select_values = db.Column(db.Text, nullable=True)  # Wartości wyboru dla pól typu "select"
     unit = db.Column(db.String(50), nullable=True)  # Jednostka miary
+    min_value = db.Column(db.Float, nullable=True)  # Minimalna wartość
+    max_value = db.Column(db.Float, nullable=True)  # Maksymalna wartość
 
     system_forms = db.relationship('SystemForm', back_populates='form',
                                    cascade='all, delete-orphan')  # Relacja wiele-do-wielu

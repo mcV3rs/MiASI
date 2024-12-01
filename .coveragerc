@@ -1,0 +1,3 @@
+[run]
+omit =
+    miasi/__main__.py
