@@ -166,7 +166,7 @@ class FormAdmin(ProtectedModelView):
 
     def on_model_change(self, form, model, is_created):
         """
-        Handle the saving of the select_options if input_type is 'select'.
+        Obsługa zmiany modelu
         """
         if form.input_type.data == "select":
             model.select_options = form.select_options.data  # Save options
