@@ -1,11 +1,10 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Znajdź elementy
+    // Lokalizacja pól formularza
     const selectOptionsField = document.getElementById("select_options");
     const selectValuesField = document.getElementById("select_values");
     const inputTypeField = document.getElementById("input_type");
 
     if (selectOptionsField && selectValuesField) {
-        // Dodaj klasę .hidden do ich rodziców form-group
         selectOptionsField.closest(".form-group").classList.add("hidden");
         selectValuesField.closest(".form-group").classList.add("hidden");
     }
@@ -67,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
         tag.className = "badge bg-secondary me-2"; // Styl Bootstrap
         tag.textContent = `${key}: ${value}`;
 
-        // Dodaj funkcję edycji po kliknięciu na tag
+        // Dodaj funkcję edycji po kliknięciu tag
         tag.addEventListener("click", function () {
             if (inputTypeField && inputTypeField.value === "select") {
                 enterEditMode(tag, key, value);
